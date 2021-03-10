@@ -16,63 +16,7 @@ namespace AplicadaBlazorParcial2.BLL
         {
             this.contexto = contexto;
         }
-
-        //Metodo Existe
-        public async Task<bool> Existe(int id)
-        {
-            bool encontrado = false;
-            try
-            {
-                encontrado = await contexto.Cliente.AnyAsync(c => c.ClienteId == id);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-            return encontrado;
-        }
-
-        //Metodo insertar
-        public async Task<bool> Insertar(Clientes clientes)
-        {
-            bool paso = false;
-            try
-            {
-                await contexto.Cliente.AddAsync(clientes);
-                paso = await contexto.SaveChangesAsync() > 0;
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-            return paso;
-
-        }
-        //Metodo
-        private async Task<bool> Modificar(Clientes clientes)
-        {
-            bool paso = false;
-            try
-            {
-                contexto.Entry(clientes).State = EntityState.Modified;
-                paso = await contexto.SaveChangesAsync() > 0;
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-            return paso;
-        }
-
-        //Metodo Guardar
-        public async Task<bool> Guardar(Clientes clientes)
-        {
-            if (!await Existe(clientes.ClienteId))
-                return await Insertar(clientes);
-            else
-                return await Modificar(clientes);
-        }
-
+        
         //Metodo Buscar.
         public async Task<Clientes> Buscar(int id)
         {
@@ -86,26 +30,6 @@ namespace AplicadaBlazorParcial2.BLL
                 throw;
             }
             return clientes;
-        }
-
-        //Metodo Eliminar
-        public async Task<bool> Eliminar(int id)
-        {
-            bool paso = false;
-            try
-            {
-                var clientes = await contexto.Cliente.FindAsync(id);
-                if (clientes != null)
-                {
-                    contexto.Cliente.Remove(clientes);
-                    paso = await contexto.SaveChangesAsync() > 0;
-                }
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-            return paso;
         }
 
         //Metodo GetList.
