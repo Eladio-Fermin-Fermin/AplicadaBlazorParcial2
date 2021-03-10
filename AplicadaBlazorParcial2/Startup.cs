@@ -1,8 +1,11 @@
+using AplicadaBlazorParcial2.DAL;
 using AplicadaBlazorParcial2.Data;
+using Blazored.Toast;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -29,6 +32,14 @@ namespace AplicadaBlazorParcial2
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddSingleton<WeatherForecastService>();
+
+            //Se inyecto el contexto.
+            services.AddDbContext<Contexto>(option =>
+            option.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
+
+            //Se inyecto BlazordToast.
+            services.AddBlazoredToast();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
