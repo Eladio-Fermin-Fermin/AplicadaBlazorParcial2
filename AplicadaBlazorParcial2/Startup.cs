@@ -1,3 +1,4 @@
+using AplicadaBlazorParcial2.BLL;
 using AplicadaBlazorParcial2.DAL;
 using AplicadaBlazorParcial2.Data;
 using Blazored.Toast;
@@ -39,6 +40,11 @@ namespace AplicadaBlazorParcial2
 
             //Se inyecto BlazordToast.
             services.AddBlazoredToast();
+
+            //Se inyectaron las BLL
+            services.AddTransient<ClientesBLL>();
+            services.AddTransient<VentasBLL>();
+            services.AddTransient<CobrosBLL>();
 
         }
 
