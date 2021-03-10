@@ -48,15 +48,34 @@ namespace AplicadaBlazorParcial2.BLL
             return paso;
         }
 
+        //Metodo Modificar.
+        private async Task<bool> Modificar(Cobros cobros)
+        {
+            bool paso = false;
+            try
+            {
+                contexto.Entry(cobros).State = EntityState.Modified;
+                paso = await contexto.SaveChangesAsync() > 0;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+            return paso;
+        }
+
         //Metodo Guardar.
         public async Task<bool> Guardar(Cobros cobros)
         {
             if (!await Existe(cobros.CobroId))
                 return await Insertar(cobros);
+            else
+                return await Modificar(cobros);
         }
 
         //Buscar
-        public async Task<Cobros> Buscar(int id)
+        /*public async Task<Cobros> Buscar(int id)
         {
             Cobros cobros;
             try
@@ -74,7 +93,7 @@ namespace AplicadaBlazorParcial2.BLL
             }
 
             return cobros;
-        }
+        }*/
 
         //Eliminar
         public async Task<bool> Eliminar(int id)
