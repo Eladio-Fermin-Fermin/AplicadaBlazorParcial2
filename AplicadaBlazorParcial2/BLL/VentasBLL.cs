@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace AplicadaBlazorParcial2.BLL
@@ -90,11 +91,50 @@ namespace AplicadaBlazorParcial2.BLL
         //Metodo Eliminar
         public async Task<bool> Eliminar(int id)
         {
+            bool paso = false;
             try
             {
                 var ventas = await contexto.Venta.FindAsync(id);
-
+                if(ventas != null)
+                {
+                    contexto.Venta.Remove(ventas);
+                    paso = await contexto.SaveChangesAsync() > 0;
+                }
             }
+            catch (Exception)
+            {
+                throw;
+            }
+            return paso;
+        }
+
+        //Metodo GetList.
+        public async Task<List<Ventas>> GetVentas(Expression<Func<Ventas, bool>> criterio)
+        {
+            List<Ventas> lista = new List<Ventas>();
+            try
+            {
+                lista = await contexto.Venta.Where(criterio).ToListAsync();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            return lista;
+        }
+
+        public async Task<List<Ventas>> GetVentas()
+        {
+            List<Ventas> lista = new List<Ventas>();
+            try
+            {
+                lista = await contexto.Venta.ToListAsync();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            return lista;
         }
 
     }
