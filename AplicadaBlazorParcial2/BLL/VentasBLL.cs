@@ -17,62 +17,6 @@ namespace AplicadaBlazorParcial2.BLL
             this.contexto = contexto;
         }
 
-        //Metodo Existe.
-        public async Task<bool> Existe(int id)
-        {
-            bool encontrado = false;
-            try
-            {
-                encontrado = await contexto.Venta.AnyAsync(v => v.VentaId == id);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-            return encontrado;
-        }
-
-        //Metodo Insertar.
-        public async Task<bool> Insertar(Ventas ventas)
-        {
-            bool paso = false;
-            try
-            {
-                await contexto.Venta.AddAsync(ventas);
-                paso = await contexto.SaveChangesAsync() > 0;
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-            return paso;
-        }
-
-        //Metodo Modificar
-        private async Task<bool> Modificar(Ventas ventas)
-        {
-            bool paso = false;
-            try
-            {
-                contexto.Entry(ventas).State = EntityState.Modified;
-                paso = await contexto.SaveChangesAsync() > 0;
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-            return paso;
-        }
-
-        //Metodo Guardar
-        public async Task<bool> Guardar(Ventas ventas)
-        {
-            if (!await Existe(ventas.VentaId))
-                return await Insertar(ventas);
-            else
-                return await Modificar(ventas);
-        }
-
         //Metodo Buscar
         public async Task<Ventas> Buscar(int id)
         {
@@ -86,26 +30,6 @@ namespace AplicadaBlazorParcial2.BLL
                 throw;
             }
             return ventas;
-        }
-
-        //Metodo Eliminar
-        public async Task<bool> Eliminar(int id)
-        {
-            bool paso = false;
-            try
-            {
-                var ventas = await contexto.Venta.FindAsync(id);
-                if(ventas != null)
-                {
-                    contexto.Venta.Remove(ventas);
-                    paso = await contexto.SaveChangesAsync() > 0;
-                }
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-            return paso;
         }
 
         //Metodo GetList.
