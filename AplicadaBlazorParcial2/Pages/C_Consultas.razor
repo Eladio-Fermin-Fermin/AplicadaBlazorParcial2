@@ -2,7 +2,7 @@
 
 <div class="card">
     <div class="card-header">
-        <h3>Consultar Ventas</h3>
+        <h3>Consultar de Ventas</h3>
     </div>
 
     <div class="card-body">
@@ -14,8 +14,12 @@
                         <label>Filtro:</label>
                         <div class="input-group">
                             <select class="form-control col-4" @bind="Filtro">
-                                
-
+                                <option value="0">Id</option>
+                                <option value="1"></option>
+                                <option value="2"></option>
+                                <option value="3"></option>
+                                <option value="4"></option>
+                                <option value="5"></option>
                             </select>
                         </div>
                     </div>
@@ -54,14 +58,6 @@
 
             </div>
         </form>
-
-    </div>
-    <div class="card-footer">
-
-        <div class="form-group offset-8">
-            <label>Resultado:</label>
-            <input type="text" class="form-control" @bind="Resultado" readonly />
-        </div>
 
     </div>
 </div>

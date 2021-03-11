@@ -37,7 +37,6 @@
 
                     <label class="col-form-label">Cliente</label>
                     <div class="form-group">
-                        <label>Clientes</label>
                         <InputSelect @bind-Value="cobro.CobroId" class="form-control">
                             @foreach (var clientes in listClientes)
                             {
@@ -73,12 +72,37 @@
                                     <td>@item.Fecha</td>
                                     <td>@item.Monto</td>
                                     <td>@item.Cobrado</td>
-                                    
+
 
                                 </tr>
                             }
                         </tbody>
                     </table>
+                </div>
+
+                <div class="col">
+                    <div class="form-group row m-1">
+                        <label class="col-form-label">Totales</label>
+                        <div class="input-group col-sm-3">
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="form-group row">
+                        <label class="col-form-label">Balance</label>
+
+                        <div class="col-sm-3">
+
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="border-info">
+                    <h5>Observaciones</h5>
+                    <InputTextArea @bind-Value="cobro.Observaciones" class="form-control" />
                 </div>
 
             </div>
