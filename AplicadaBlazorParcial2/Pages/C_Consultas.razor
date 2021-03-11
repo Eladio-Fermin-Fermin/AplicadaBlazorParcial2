@@ -1,0 +1,108 @@
+﻿@page "/Consultar"
+
+<div class="card">
+    <div class="card-header">
+        <h3>Consultar Ventas</h3>
+    </div>
+
+    <div class="card-body">
+        <form>
+
+            <div class="form-row align-items-center">
+                <div class="col">
+                    <div class="form-group">
+                        <label>Filtro:</label>
+                        <div class="input-group">
+                            <select class="form-control col-4" @bind="Filtro">
+                                
+
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="form-group">
+                        <label>Criterio:</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control col-4" @bind="criterio" />
+                            <div class="input-group-append">
+                                <button type="button" class="btn btn-primary input-group-text" @onclick="Consultar">Consultar</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <table class=" table">
+                    <thead>
+                        <tr>
+                            
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var Ventas in Lista)
+                        {
+                            <tr>
+                                
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+            </div>
+        </form>
+
+    </div>
+    <div class="card-footer">
+
+        <div class="form-group offset-8">
+            <label>Resultado:</label>
+            <input type="text" class="form-control" @bind="Resultado" readonly />
+        </div>
+
+    </div>
+</div>
+
+
+@code {
+
+    public List<Ventas> Lista = new List<Ventas>();
+
+    public decimal Resultado { get; set; }
+
+    public int Filtro { get; set; }
+
+    public string criterio { get; set; }
+
+
+
+    protected override void OnInitialized()
+    {
+        Nuevo();
+    }
+
+    private void Nuevo()
+    {
+        Lista = new List<Ventas>();
+    }
+
+
+    private void Consultar()
+    {
+        try
+        {
+            switch (Filtro)
+            {
+
+            }
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
+    }
+}

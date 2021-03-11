@@ -36,14 +36,15 @@
                     </div>
 
                     <label class="col-form-label">Cliente</label>
-                    <div class="col-sm-11">
-                        <select @bind="cobro.ClienteId"  class="form-control">
-                            @foreach (var item in listClientes)
+                    <div class="form-group">
+                        <label>Clientes</label>
+                        <InputSelect @bind-Value="cobro.CobroId" class="form-control">
+                            @foreach (var clientes in listClientes)
                             {
-                                <option value="@item.ClienteId">@item.Nombres</option>
+                                <option value="@clientes.ClienteId">@clientes.Nombres</option>
                             }
-
-                        </select>
+                        </InputSelect>
+                        <ValidationMessage For="(() => cobro.ClienteId)" />
                     </div>
 
                 </form>
@@ -72,7 +73,7 @@
                                     <td>@item.Fecha</td>
                                     <td>@item.Monto</td>
                                     <td>@item.Cobrado</td>
-                                    <td><InputCheckbox @bind-Value="item.Cobrado" @onclick="() => pagar(item)" class="form-check" /></td>
+                                    
 
                                 </tr>
                             }
@@ -99,6 +100,7 @@
 
 
 @code {
+
     [Inject]
     public ClientesBLL clientesBLL { get; set; }
     [Inject]
@@ -107,34 +109,37 @@
     public CobrosBLL cobrosBLL { get; set; }
     [Parameter]
     public int CobroId { get; set; }
+    [Parameter]
+    public EventCallback<int> Cobrado { get; set; }
+
+    private int cobrado = 0;
     private Cobros cobro = new Cobros();
-    private CobrosDetalles detalles=new CobrosDetalles();
-    private Ventas ventas=new Ventas();
+    private CobrosDetalles detalles = new CobrosDetalles();
+    private Ventas ventas = new Ventas();
 
-    /*List<Clientes> listClientes = new List<Clientes>();
+    List<dynamic> DetalleDTO = new List<dynamic>();
+
+    private decimal totales = 0;
+    List<Clientes> listClientes = new List<Clientes>();
     List<Ventas> listVentas = new List<Ventas>();
-    List<dynamic> DetalleDTO = new List<dynamic>();*/
-
-    private List<Clientes> listaCliente = new List<Clientes>();
-    private List<Ventas> listaFactura = new List<Ventas>();
 
     protected async override Task OnInitializedAsync()
     {
-        listaCliente = await clientesBLL.GetList(c => true);
+        //listVentas = await ventasBLL.GetVentas(p => true);
+        listClientes = await clientesBLL.GetClientes(p => true);
     }
-
 
     private async void Buscar()
     {
         var registro = await cobrosBLL.Buscar(this.CobroId);
         if (registro != null)
-
         {
             this.cobro = registro;
+            //SourceDTO(registro.Detalles);
         }
         else
         {
-            toast.ShowInfo("No se encontro Registro");
+            toast.ShowInfo("No se encontro ningún registro.");
         }
     }
 
@@ -142,6 +147,7 @@
     {
         this.cobro = new Cobros();
         this.CobroId = 0;
+        DetalleDTO = new List<dynamic>();
     }
 
     private void Nuevo()
@@ -149,58 +155,98 @@
         Limpiar();
     }
 
+    private bool Validar()
+    {
+        if (!(cobro.ClienteId >= 1))
+        {
+            toast.ShowWarning("Debe selecionar un suplidor antes de guardar.");
+            return false;
+        }
+
+        if (cobro.Cobrosdetalles.Count == 0)
+        {
+            toast.ShowWarning("Agregue como minimo un producto al detalle.");
+            return false;
+        }
+
+        return true;
+    }
+
     private async void Guardar()
     {
+        if (!Validar()) { return; }
+
         cobro.CobroId = this.CobroId;
-        if(await cobrosBLL.Guardar(cobro))
+        if (await cobrosBLL.Guardar(cobro))
         {
-            toast.ShowSuccess("El Registro se a Guardado");
+            toast.ShowSuccess("Registro guardado.");
             Limpiar();
         }
         else
         {
-            toast.ShowError("No se guardo el registro");
+            toast.ShowError("No se logro guardar el registro.");
         }
     }
 
-    public void pagar(CobrosDetalles cobro)
-    {
-
-    }
-
-    public async void SourceTabla()
-    {
-        if (cobro.ClienteId == 0) { return; }
-        listaFactura = await ventasBLL.GetVentas(v => v.ClienteId == Cobro.ClienteId);
-
-        foreach (var item in listaFactura)
-        {
-            var detalleCobro = new CobrosDetalles
-            {
-                Monto = item.Balance,
-                Fecha = item.Fecha,
-            };
-
-            cobro.CobrosDetalle.Add(detalleCobro);
-        }
-    }
 
     private async void Eliminar()
     {
-        if(await cobrosBLL.Eliminar(this.CobroId))
+        if (await cobrosBLL.Eliminar(this.CobroId))
         {
-            toast.ShowSuccess("Se elimino el Registro");
+            toast.ShowSuccess("Registro eliminado.");
             Limpiar();
         }
         else
         {
-            toast.ShowError("No se pudo eliminar el registro");
+            toast.ShowError("No se logro eliminar el registro.");
         }
-
     }
 
     private void Remover(dynamic detalle)
     {
+        cobro.BalanceCobro -= (detalle.Cantidad * detalle.Costo);
 
+        cobro.Cobrosdetalles.RemoveAll(i => i.Id == detalle.Id);
+        DetalleDTO.Remove(detalle);
     }
+
+
+    private async void SourceDTO(List<CobrosDetalles> detalle)
+    {
+        foreach (var item in detalle)
+        {
+            var ventas = await ventasBLL.Buscar(item.CobroId);
+
+            var dto = new
+            {
+                item.Id,
+                item.Fecha
+                /*entas.Descripcion,
+                productos.Costo,
+                item.Cantidad,
+                total*/
+            };
+
+            DetalleDTO.Add(dto);
+        }
+    }
+
+    private void SourceDTO(CobrosDetalles detalle, Ventas ventas)
+    {
+        var dto = new
+        {
+            detalle.Id,
+            //ventas.VentaId,
+            ventas.Fecha,
+            //ventas.Monto,
+            //ventas.Balance,
+            /*ventas.
+            ventas*/
+            //detalle.totales,
+            // total
+        };
+
+        DetalleDTO.Add(dto);
+    }
+
 }
