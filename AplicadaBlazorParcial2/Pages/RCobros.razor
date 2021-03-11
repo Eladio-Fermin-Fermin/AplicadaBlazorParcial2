@@ -35,15 +35,15 @@
                         <InputDate @bind-Value="cobro.Fecha" class="form-control" />
                     </div>
 
-                    <div class="form-group">
-                        <label>Clientes</label>
-                        <InputSelect @bind-Value="cobro.CobroId" class="form-control">
-                            @foreach (var clientes in listClientes)
+                    <label class="col-form-label">Cliente</label>
+                    <div class="col-sm-11">
+                        <select @bind="cobro.ClienteId"  class="form-control">
+                            @foreach (var item in listClientes)
                             {
-                                <option value="@clientes.ClienteId">@clientes.Nombres</option>
+                                <option value="@item.ClienteId">@item.Nombres</option>
                             }
-                        </InputSelect>
-                        <ValidationMessage For="(() => cobro.ClienteId)" />
+
+                        </select>
                     </div>
 
                 </form>
@@ -65,15 +65,15 @@
                             </tr>
                         </thead>
                         <tbody class="bg-white">
-                            @foreach (var item in DetalleDTO)
+                            @foreach (var item in cobro.Cobrosdetalles)
                             {
                                 <tr>
-                                    <td>@item.Id</td>
+                                    <td>@item.CobroId</td>
                                     <td>@item.Fecha</td>
                                     <td>@item.Monto</td>
-                                    <td>@item.Balance</td>
                                     <td>@item.Cobrado</td>
-                                    <td><button type="button" class="btn btn-danger" @onclick="() => Remover(item)">Remover</button></td>
+                                    <td><InputCheckbox @bind-Value="item.Cobrado" @onclick="() => pagar(item)" class="form-check" /></td>
+
                                 </tr>
                             }
                         </tbody>
@@ -107,13 +107,22 @@
     public CobrosBLL cobrosBLL { get; set; }
     [Parameter]
     public int CobroId { get; set; }
-    private Cobros cobro=new Cobros();
+    private Cobros cobro = new Cobros();
     private CobrosDetalles detalles=new CobrosDetalles();
     private Ventas ventas=new Ventas();
 
-    List<Clientes> listClientes = new List<Clientes>();
+    /*List<Clientes> listClientes = new List<Clientes>();
     List<Ventas> listVentas = new List<Ventas>();
-    List<dynamic> DetalleDTO = new List<dynamic>();
+    List<dynamic> DetalleDTO = new List<dynamic>();*/
+
+    private List<Clientes> listaCliente = new List<Clientes>();
+    private List<Ventas> listaFactura = new List<Ventas>();
+
+    protected async override Task OnInitializedAsync()
+    {
+        listaCliente = await clientesBLL.GetList(c => true);
+    }
+
 
     private async void Buscar()
     {
@@ -151,6 +160,28 @@
         else
         {
             toast.ShowError("No se guardo el registro");
+        }
+    }
+
+    public void pagar(CobrosDetalles cobro)
+    {
+
+    }
+
+    public async void SourceTabla()
+    {
+        if (cobro.ClienteId == 0) { return; }
+        listaFactura = await ventasBLL.GetVentas(v => v.ClienteId == Cobro.ClienteId);
+
+        foreach (var item in listaFactura)
+        {
+            var detalleCobro = new CobrosDetalles
+            {
+                Monto = item.Balance,
+                Fecha = item.Fecha,
+            };
+
+            cobro.CobrosDetalle.Add(detalleCobro);
         }
     }
 
