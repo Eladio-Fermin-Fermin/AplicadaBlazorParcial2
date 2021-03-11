@@ -1,8 +1,101 @@
-﻿<h3>RCobros</h3>
+﻿@page "/Cobros"
 
-@code {
-    [Inject]
-    public ClientesBLL clientesBLL { get; set; }
-    [Inject]
+@page "/Cobros/{CobroId:int}"
+@inject IToastService toast 
 
-}
+<div class="shadow-lg p-3 mb-5 bg-white rounded">
+
+    <EditForm Model="cobro" OnValidSubmit="Guardar">
+        <DataAnnotationsValidator />
+        <div class="card">
+
+            <div class="card-header">
+                <h3>Registro de Cobro</h3>
+            </div>
+
+
+
+        </div>
+    </EditForm>
+
+</div>
+
+
+     @code {
+     [Inject]
+     public ClientesBLL clientesBLL { get; set; }
+     [Inject]
+     public VentasBLL ventasBLL { get; set; }
+     [Inject]
+     public CobrosBLL cobrosBLL { get; set; }
+     [Parameter]
+     public int CobroId { get; set; }
+     private Cobros cobro=new Cobros();
+     private CobrosDetalles detalles=new CobrosDetalles();
+     private Ventas ventas=new Ventas();
+     /* protected async void override Task OnInitializedAsync()
+     {
+     listVentas=await ventasBLL.GetVentas(p=>
+    true);
+    listClientes = await clientesBLL.GetClientess(p => true);
+    }*/
+
+    private async void Buscar()
+    {
+    var registro = await cobrosBLL.Buscar(this.CobroId);
+    if(registro != null)
+    {
+    this.cobro = registro;
+    }
+    else
+    {
+    toast.ShowInfo("No se encontro Registro");
+    }
+    }
+
+    private void Limpiar()
+    {
+    this.cobro = new Cobros();
+    this.CobroId = 0;
+    }
+
+    private void Nuevo()
+    {
+    Limpiar();
+    }
+
+    private async void Guardar()
+    {
+    cobro.CobroId = this.CobroId;
+    if(await cobrosBLL.Guardar(cobro))
+    {
+    toast.ShowSuccess("El Registro se a Guardado");
+    Limpiar();
+    }
+    else
+    {
+    toast.ShowError("No se guardo el registro");
+    }
+    }
+
+    private async void Eliminar()
+    {
+    if(await cobrosBLL.Eliminar(this.CobroId))
+    {
+    toast.ShowSuccess("Se elimino el Registro");
+    Limpiar();
+    }
+    else
+    {
+    toast.ShowError("No se pudo eliminar el registro");
+    }
+
+    }
+
+    private void Remover(dynamic detalle)
+    {
+
+    }
+
+
+    }

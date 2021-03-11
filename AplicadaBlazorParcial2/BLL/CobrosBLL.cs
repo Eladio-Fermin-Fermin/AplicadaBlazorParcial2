@@ -75,14 +75,14 @@ namespace AplicadaBlazorParcial2.BLL
         }
 
         //Buscar
-        /*public async Task<Cobros> Buscar(int id)
+        public async Task<Cobros> Buscar(int id)
         {
             Cobros cobros;
             try
             {
                 cobros = await contexto.Cobro
                    .Where(o => o.CobroId == id)
-                   .Include(d => d.CobrosDetalles)
+                   .Include(d => d.Cobrosdetalles)
                    .AsNoTracking()
                    .SingleOrDefaultAsync();
 
@@ -93,7 +93,7 @@ namespace AplicadaBlazorParcial2.BLL
             }
 
             return cobros;
-        }*/
+        }
 
         //Eliminar
         public async Task<bool> Eliminar(int id)
