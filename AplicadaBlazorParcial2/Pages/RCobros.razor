@@ -13,82 +13,158 @@
                 <h3>Registro de Cobro</h3>
             </div>
 
+            <div class="card-body">
+                <form>
 
+                    <div class="form-row align-items-center">
+                        <div class="col">
+                            <div class="form-group">
+                                <label>Id</label>
+                                <div class="input-group">
+                                    <InputNumber @bind-Value="this.CobroId" class="form-control" />
+                                    <div class="input-group-append">
+                                        <button type="button" style="z-index:0" class="btn btn-secondary" @onclick="Buscar">Buscar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
+                    <div class="form-group">
+                        <label>Fecha</label>
+                        <InputDate @bind-Value="cobro.Fecha" class="form-control" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Clientes</label>
+                        <InputSelect @bind-Value="cobro.CobroId" class="form-control">
+                            @foreach (var clientes in listClientes)
+                            {
+                                <option value="@clientes.ClienteId">@clientes.Nombres</option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="(() => cobro.ClienteId)" />
+                    </div>
+
+                </form>
+            </div>
         </div>
+
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive text-nowrap" style="position: relative; height:200px; overflow: auto; display: block;">
+                    <table class="table table-striped">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Id</th>
+                                <th>Fecha</th>
+                                <th>Monto</th>
+                                <th>Balance</th>
+                                <th>Cobrado</th>
+                                <th>Pagal</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white">
+                            @foreach (var item in DetalleDTO)
+                            {
+                                <tr>
+                                    <td>@item.Id</td>
+                                    <td>@item.Fecha</td>
+                                    <td>@item.Monto</td>
+                                    <td>@item.Balance</td>
+                                    <td>@item.Cobrado</td>
+                                    <td><button type="button" class="btn btn-danger" @onclick="() => Remover(item)">Remover</button></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+            <div class="card-footer">
+                <div class="form-group text-center">
+                    <div class="form-group text-center">
+                        <button type="button" class="btn btn-primary" @onclick="Nuevo">Nuevo</button>
+                        <button type="submit" class="btn btn-success">Guardar</button>
+                        <button type="button" class="btn btn-danger" @onclick="Eliminar">Eliminar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </EditForm>
 
 </div>
 
 
-     @code {
-     [Inject]
-     public ClientesBLL clientesBLL { get; set; }
-     [Inject]
-     public VentasBLL ventasBLL { get; set; }
-     [Inject]
-     public CobrosBLL cobrosBLL { get; set; }
-     [Parameter]
-     public int CobroId { get; set; }
-     private Cobros cobro=new Cobros();
-     private CobrosDetalles detalles=new CobrosDetalles();
-     private Ventas ventas=new Ventas();
-     /* protected async void override Task OnInitializedAsync()
-     {
-     listVentas=await ventasBLL.GetVentas(p=>
-    true);
-    listClientes = await clientesBLL.GetClientess(p => true);
-    }*/
+@code {
+    [Inject]
+    public ClientesBLL clientesBLL { get; set; }
+    [Inject]
+    public VentasBLL ventasBLL { get; set; }
+    [Inject]
+    public CobrosBLL cobrosBLL { get; set; }
+    [Parameter]
+    public int CobroId { get; set; }
+    private Cobros cobro=new Cobros();
+    private CobrosDetalles detalles=new CobrosDetalles();
+    private Ventas ventas=new Ventas();
+
+    List<Clientes> listClientes = new List<Clientes>();
+    List<Ventas> listVentas = new List<Ventas>();
+    List<dynamic> DetalleDTO = new List<dynamic>();
 
     private async void Buscar()
     {
-    var registro = await cobrosBLL.Buscar(this.CobroId);
-    if(registro != null)
-    {
-    this.cobro = registro;
-    }
-    else
-    {
-    toast.ShowInfo("No se encontro Registro");
-    }
+        var registro = await cobrosBLL.Buscar(this.CobroId);
+        if (registro != null)
+
+        {
+            this.cobro = registro;
+        }
+        else
+        {
+            toast.ShowInfo("No se encontro Registro");
+        }
     }
 
     private void Limpiar()
     {
-    this.cobro = new Cobros();
-    this.CobroId = 0;
+        this.cobro = new Cobros();
+        this.CobroId = 0;
     }
 
     private void Nuevo()
     {
-    Limpiar();
+        Limpiar();
     }
 
     private async void Guardar()
     {
-    cobro.CobroId = this.CobroId;
-    if(await cobrosBLL.Guardar(cobro))
-    {
-    toast.ShowSuccess("El Registro se a Guardado");
-    Limpiar();
-    }
-    else
-    {
-    toast.ShowError("No se guardo el registro");
-    }
+        cobro.CobroId = this.CobroId;
+        if(await cobrosBLL.Guardar(cobro))
+        {
+            toast.ShowSuccess("El Registro se a Guardado");
+            Limpiar();
+        }
+        else
+        {
+            toast.ShowError("No se guardo el registro");
+        }
     }
 
     private async void Eliminar()
     {
-    if(await cobrosBLL.Eliminar(this.CobroId))
-    {
-    toast.ShowSuccess("Se elimino el Registro");
-    Limpiar();
-    }
-    else
-    {
-    toast.ShowError("No se pudo eliminar el registro");
-    }
+        if(await cobrosBLL.Eliminar(this.CobroId))
+        {
+            toast.ShowSuccess("Se elimino el Registro");
+            Limpiar();
+        }
+        else
+        {
+            toast.ShowError("No se pudo eliminar el registro");
+        }
 
     }
 
@@ -96,6 +172,4 @@
     {
 
     }
-
-
-    }
+}
