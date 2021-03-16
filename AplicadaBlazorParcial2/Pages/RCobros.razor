@@ -15,7 +15,6 @@
 
             <div class="card-body">
                 <form>
-
                     <div class="form-row align-items-center">
                         <div class="col">
                             <div class="form-group">
@@ -25,28 +24,34 @@
                                     <div class="input-group-append">
                                         <button type="button" style="z-index:0" class="btn btn-secondary" @onclick="Buscar">Buscar</button>
                                     </div>
+                                    <ValidationMessage For="@(() => cobro.CobroId)" />
                                 </div>
                             </div>
                         </div>
                     </div>
 
+                    @*Fecha*@
                     <div class="form-group">
                         <label>Fecha</label>
                         <InputDate @bind-Value="cobro.Fecha" class="form-control" />
-                    </div>
-
-                    <label class="col-form-label">Cliente</label>
-                    <div class="form-group">
-                        <InputSelect @bind-Value="cobro.CobroId" class="form-control">
-                            @foreach (var clientes in ClienteList)
-                            {
-                                <option value="@clientes.ClienteId">@clientes.Nombres</option>
-                            }
-                        </InputSelect>
-                        <ValidationMessage For="(() => cobro.ClienteId)" />
+                        <ValidationMessage For="@(() => cobro.Fecha)" />
                     </div>
 
                 </form>
+
+                @*Cliente*@
+                <div class="form-group">
+                    <label>Clientes</label>
+                    <select @bind="cobro.ClienteId" class="form-control" @onblur="ObtenerVentasPendientes">
+                        <option value="0" disabled selected>Seleccione un cliente</option>
+                        @foreach (var item in ClienteList)
+                        {
+                            <option value="@item.ClienteId">@item.Nombres</option>
+                        }
+                    </select>
+                </div>
+
+
             </div>
         </div>
 
@@ -56,55 +61,50 @@
                     <table class="table table-striped">
                         <thead class="thead-light">
                             <tr>
-                                <th>Id</th>
+                                <th>ID</th>
                                 <th>Fecha</th>
                                 <th>Monto</th>
                                 <th>Balance</th>
                                 <th>Cobrado</th>
-                                <th>Pagal</th>
+                                <th>Pagar</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white">
+
                             @foreach (var item in cobro.Cobrosdetalles)
                             {
                                 <tr>
-                                    <td>@item.CobroId</td>
                                     <td>@item.VentaId</td>
-                                    <td>@item.</td>
-                                    <td>@item.Cobrado</td>
-
-
+                                    <td>@item.Venta.Fecha.ToString("dd/MM/yyyy")</td>
+                                    <td>@item.Venta.Monto.ToString("N2")</td>
+                                    <td>@item.Venta.Balance.ToString("N2")</td>
+                                    <td>@item.Cobrado.ToString("N2")</td>
+                                    <td> <input type="checkbox" @onchange="@(() => Cobrar(item))" /> </td>
                                 </tr>
                             }
                         </tbody>
                     </table>
                 </div>
 
-                <div class="col">
-                    <div class="form-group row m-1">
-                        <label class="col-form-label">Totales</label>
-                        <div class="input-group col-sm-3">
+            </div>
 
-                        </div>
-                    </div>
+
+            <div class=" form-group form-inline">
+                <div class="form-group col-6">
+                    <label>Totales</label>
+                    <span class="form-control">@cobro.Cobrosdetalles.Count()</span>
                 </div>
 
-                <div class="col">
-                    <div class="form-group row">
-                        <label class="col-form-label">Balance</label>
-
-                        <div class="col-sm-3">
-
-                        </div>
-
-                    </div>
+                <div class="form-group col-6">
+                    <label>Cobro Total</label>
+                    <InputNumber @bind-Value="cobro.BalanceCobro" class="form-control" readOnly="true" />
+                    <ValidationMessage For="@(() => cobro.BalanceCobro)" />
                 </div>
+            </div>
 
-                <div class="border-info">
-                    <h5>Observaciones</h5>
-                    <InputTextArea @bind-Value="cobro.Observaciones" class="form-control" />
-                </div>
-
+            <div class="form-group ">
+                <label>Observaciones</label>
+                <textarea @bind="cobro.Observaciones" class="form-control" row="5" placeholder="Observacion" />
             </div>
 
             <div class="card-footer">
@@ -116,8 +116,8 @@
                     </div>
                 </div>
             </div>
-        </div>
 
+        </div>
     </EditForm>
 
 </div>
