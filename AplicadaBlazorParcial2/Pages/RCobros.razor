@@ -38,7 +38,7 @@
                     <label class="col-form-label">Cliente</label>
                     <div class="form-group">
                         <InputSelect @bind-Value="cobro.CobroId" class="form-control">
-                            @foreach (var clientes in listClientes)
+                            @foreach (var clientes in ClienteList)
                             {
                                 <option value="@clientes.ClienteId">@clientes.Nombres</option>
                             }
@@ -151,8 +151,7 @@
     private void Nuevo()
     {
         /*cobro = new Cobros();
-        ClienteList = ClientesBLL.GetList(c => true);
-        ClienteList = clientesBLL.GetList (c => true);
+        ClienteList = clientesBLL.GetList(c => true);
         VentaList = new List<CobrosDetalles>();
         cobro.Fecha = DateTime.Now;*/
         Limpiar();
@@ -160,26 +159,16 @@
 
     private async void Guardar()
     {
-        /*bool guardado;
-
-        cobro.cobrosDetalles.RemoveAll(d => d.Cobrado == 0);
-
-        guardado = cobrosBLL.Guardar(cobro);
-
-        if (guardado)
-        {
-            Toast.ShowSuccess("Se ha guardado exitosamente");
-            Nuevo();
-        }*/
+        
         cobro.CobroId = this.CobroId;
         if (await cobrosBLL.Guardar(cobro))
         {
-            //toast.ShowSuccess("Guardado.");
+            toast.ShowSuccess("Guardado.");
             Limpiar();
         }
         else
         {
-            //Toast.ShowError("No se pudo guardar exitosamente");
+            toast.ShowError("No se pudo guardar exitosamente");
         }
 
     }
@@ -187,24 +176,17 @@
     private async void Buscar()
     {
         var cobro = await cobrosBLL.Buscar(this.CobroId);
-        cobro.cobrosDetalles = await ventasBLL.GetVentasCobradas(cobro.ClienteId);
+        cobro.Cobrosdetalles = await ventasBLL.GetVentasPagada(cobro.ClienteId);
 
         if (cobro != null)
         {
             this.cobro = cobro;
-            //SourceDTO(mora.MorasDetalles);
         }
         else
         {
-            //toast.ShowInfo("No se encontro el registro deseado.");
+            toast.ShowInfo("Este cobro no existe");
         }
 
-        /*cobro.cobrosDetalles = await VentasBLL.GetVentasCobradas(cobro.ClienteId);
-
-        if (Cobro != null)
-            this.cobro = Cobro;
-        else
-            Toast.ShowError("Este cobro no existe");*/
     }
 
     private async void Eliminar()
@@ -212,24 +194,13 @@
 
         if (await cobrosBLL.Eliminar(this.CobroId))
         {
-            //toast.ShowSuccess("Eliminado");
+            toast.ShowSuccess("Eliminado");
             Limpiar();
         }
         else
         {
-            //toast.ShowError("Error al eliminar el registro.");
+            toast.ShowError("Error al eliminar el registro.");
         }
-        /*bool elimino;
-
-        elimino = cobrosBLL.Eliminar(cobro.CobroId);
-
-        if (elimino)
-        {
-            Nuevo();
-            Toast.ShowSuccess("Se ha Eliminado exitosamente");
-        }
-        else
-            Toast.ShowError("No se pudo eliminar exitosamente");*/
     }
 
     private void Cobrar(CobrosDetalles cobroDetalle)
@@ -237,12 +208,12 @@
         if (cobroDetalle.Cobrado == 0)
         {
             cobroDetalle.Cobrado = cobroDetalle.Venta.Balance;
-            cobro.Cobro += cobroDetalle.Cobrado;
+            cobro.BalanceCobro += cobroDetalle.Cobrado;
         }
         else
         {
             cobroDetalle.Cobrado = 0;
-            cobro.Cobro -= cobroDetalle.Venta.Balance;
+            cobro.BalanceCobro -= cobroDetalle.Venta.Balance;
         }
     }
 
@@ -255,7 +226,7 @@
     private async Task ObtenerVentasPendientes()
     {
         if (cobro.CobroId == 0)
-            cobro.cobrosDetalles = await ventasBLL.GetVentasPendiente(cobro.ClienteId);
+            cobro.Cobrosdetalles = await ventasBLL.GetVentasPorPagar(cobro.ClienteId);
     }
 
 }

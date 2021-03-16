@@ -14,7 +14,7 @@ namespace AplicadaBlazorParcial2.Models
         public DateTime Fecha { get; set; }
         public int ClienteId { get; set; }
         public double Monto { get; set; }
-        public double Balance { get; set; }
+        public float Balance { get; set; }
         public virtual Clientes Cliente { get; set; }
 
         [ForeignKey("VentaId")]
