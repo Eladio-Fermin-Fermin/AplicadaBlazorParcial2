@@ -17,16 +17,12 @@ namespace AplicadaBlazorParcial2.Models
         public int ClienteId { get; set; }
         public int Totales { get; set; }
 
-        [ForeignKey("ClienteId")]
-        public virtual Clientes Cliente { get; set; }
-
         [ForeignKey("CobroId")]
         public virtual List<CobrosDetalles> Cobrosdetalles { get; set; }
 
         public Cobros()
         {
             Fecha = DateTime.Now;
-            Cobrosdetalles = new List<CobrosDetalles>();
         }
     }
 }
