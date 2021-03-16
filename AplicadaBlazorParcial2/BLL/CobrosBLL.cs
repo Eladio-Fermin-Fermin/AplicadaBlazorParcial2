@@ -17,137 +17,117 @@ namespace AplicadaBlazorParcial2.BLL
             this.contexto = contexto;
         }
 
-        //Metodo Existe.
-        public async Task<bool> Existe(int id)
-        {
-            bool encontrado = false;
-            try
-            {
-                encontrado = await contexto.Cobro.AnyAsync(c => c.CobroId == id);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-            return encontrado;
-        }
-
-        //Metodo Insertar.
-        public async Task<bool> Insertar(Cobros cobros)
-        {
-            bool paso = false;
-            try
-            {
-                await contexto.Cobro.AddAsync(cobros);
-                paso = await contexto.SaveChangesAsync() > 0;
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-            return paso;
-        }
-
-        //Metodo Modificar.
-        private async Task<bool> Modificar(Cobros cobros)
-        {
-            bool paso = false;
-            try
-            {
-                contexto.Entry(cobros).State = EntityState.Modified;
-                paso = await contexto.SaveChangesAsync() > 0;
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-
-            return paso;
-        }
-
-        //Metodo Guardar.
         public async Task<bool> Guardar(Cobros cobros)
         {
-            if (!await Existe(cobros.CobroId))
-                return await Insertar(cobros);
-            else
-                return await Modificar(cobros);
+            return await Insertar(cobros);
         }
 
-        //Buscar
+        private async Task<bool> Insertar(Cobros cobros)
+        {
+            bool Insertado = false;
+            //Contexto contexto = new Contexto();
+
+            try
+            {
+                await contexto.Cobros.AddAsync(cobros);
+                Insertado = await contexto.SaveChangesAsync() > 0;
+                foreach (var item in cobros.Cobrosdetalles)
+                {
+
+                    item.Venta = contexto.Ventas.Find(item.VentaId);
+                    item.Venta.Balance -= item.Cobrado;
+                    contexto.Entry(item.Venta).State = EntityState.Modified;
+                }
+                contexto.Cobros.Add(cobros);
+                Insertado = (contexto.SaveChanges() > 0);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                contexto.Dispose();
+            }
+            return Insertado;
+        }
+
         public async Task<Cobros> Buscar(int id)
         {
             Cobros cobros;
+
             try
             {
-                cobros = await contexto.Cobro
-                   .Where(o => o.CobroId == id)
-                   .Include(d => d.Cobrosdetalles)
-                   .AsNoTracking()
-                   .SingleOrDefaultAsync();
-
+                cobros = await contexto.Cobros.Where(m => m.CobroId == id)
+                    .Include(d => d.Cobrosdetalles)
+                    .AsNoTracking()
+                    .SingleOrDefaultAsync();
             }
             catch (Exception)
             {
+
                 throw;
             }
 
             return cobros;
         }
 
-        //Eliminar
         public async Task<bool> Eliminar(int id)
         {
-            bool paso = false;
+            bool ok = false;
             try
             {
-                var cobros = await contexto.Cobro.FindAsync(id);
-                if (cobros != null)
+
+                var registro = await Buscar(id);
+
+                if (registro != null)
                 {
-                    contexto.Cobro.Remove(cobros);
-                    paso = await contexto.SaveChangesAsync() > 0;
+                    contexto.Cobros.Remove(registro);
+                    ok = await contexto.SaveChangesAsync() > 0;
                 }
             }
             catch (Exception)
             {
+
                 throw;
             }
 
-            return paso;
+            return ok;
         }
 
-        //GetList
-        public async Task<List<Cobros>> GetCobros()
-        {
-            List<Cobros> lista = new List<Cobros>();
-            try
-            {
-                lista = await contexto.Cobro.ToListAsync();
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-
-            return lista;
-        }
-
-        public async Task<List<Cobros>> GetCobros(Expression<Func<Cobros, bool>> criterio)
+        /*public async Task<List<Cobros>> GetCobros()
         {
             List<Cobros> lista = new List<Cobros>();
 
             try
             {
-                lista = await contexto.Cobro.Where(criterio).ToListAsync();
+                lista = await contexto.Cobros.ToListAsync();
             }
             catch (Exception)
             {
+
+                throw;
+            }
+
+            return lista;
+        }*/
+
+        public async Task<List<Cobros>> GetList(Expression<Func<Cobros, bool>> criterio)
+        {
+            List<Cobros> lista = new List<Cobros>();
+
+            try
+            {
+                lista = await contexto.Cobros.Where(criterio).ToListAsync();
+            }
+            catch (Exception)
+            {
+
                 throw;
             }
 
             return lista;
         }
-
     }
 
 }

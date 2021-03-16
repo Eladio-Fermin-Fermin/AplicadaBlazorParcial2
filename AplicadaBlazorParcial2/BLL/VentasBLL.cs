@@ -17,48 +17,82 @@ namespace AplicadaBlazorParcial2.BLL
             this.contexto = contexto;
         }
 
-        //Metodo Buscar
         public async Task<Ventas> Buscar(int id)
         {
             Ventas ventas;
+
             try
             {
-                ventas = await contexto.Venta.FindAsync(id);
+                ventas = await contexto.Ventas
+                   .Where(p => p.VentaId == id)
+                   .AsNoTracking()
+                   .FirstOrDefaultAsync();
             }
             catch (Exception)
             {
+
                 throw;
             }
+
             return ventas;
         }
 
-        //Metodo GetList.
-        public async Task<List<Ventas>> GetVentas(Expression<Func<Ventas, bool>> criterio)
+
+        public async Task<List<Ventas>> GetList(Expression<Func<Ventas, bool>> criterio)
         {
             List<Ventas> lista = new List<Ventas>();
+
             try
             {
-                lista = await contexto.Venta.Where(criterio).ToListAsync();
+                lista = await contexto.Ventas.Where(criterio).ToListAsync();
             }
             catch (Exception)
             {
+
                 throw;
             }
+
             return lista;
         }
 
-        public async Task<List<Ventas>> GetVentas()
+        public async Task<List<CobrosDetalles>> GetVentasPorPagar(int clienteId)
         {
-            List<Ventas> lista = new List<Ventas>();
-            try
+            var porPagar = new List<CobrosDetalles>();
+            var ventas = await contexto.Ventas.Where(v => v.ClienteId == clienteId && v.Balance > 0)
+                .AsNoTracking()
+                .ToListAsync();
+
+            foreach (var item in ventas)
             {
-                lista = await contexto.Venta.ToListAsync();
+                porPagar.Add(new CobrosDetalles
+                {
+                    VentaId = item.VentaId,
+                    Venta = item,
+                    Cobrado = 0
+                });
             }
-            catch (Exception)
+
+            return porPagar;
+        }
+        public async Task<List<CobrosDetalles>> GetVentasPagada(int clienteId)
+        {
+            var porPagar = new List<CobrosDetalles>();
+            var ventas = await contexto.Ventas
+                .Where(v => v.ClienteId == clienteId && v.Balance == 0)
+                .AsNoTracking()
+                .ToListAsync();
+
+            foreach (var item in ventas)
             {
-                throw;
+                porPagar.Add(new CobrosDetalles
+                {
+                    VentaId = item.VentaId,
+                    Venta = item,
+                    Cobrado = 0
+                });
             }
-            return lista;
+
+            return porPagar;
         }
 
     }

@@ -9,11 +9,11 @@ namespace AplicadaBlazorParcial2.Models
     public class CobrosDetalles
     {
         [Key]
-        public int Id { get; set; }
+        public int CobroDetalleId { get; set; }
         public int CobroId { get; set; }
-        public DateTime Fecha { get; set; }
-        public double Monto { get; set; }
-        public double Balance { get; set; }
-        public double Cobrado { get; set; }
+        public int VentaId { get; set; }
+        public float Cobrado { get; set; }
+        public virtual Cobros Cobro { get; set; }
+        public virtual Ventas Venta { get; set; }
     }
 }

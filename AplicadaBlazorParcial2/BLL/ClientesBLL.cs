@@ -16,50 +16,22 @@ namespace AplicadaBlazorParcial2.BLL
         {
             this.contexto = contexto;
         }
-        
-        //Metodo Buscar.
-        public async Task<Clientes> Buscar(int id)
-        {
-            Clientes clientes;
-            try
-            {
-                clientes = await contexto.Cliente.FindAsync(id);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-            return clientes;
-        }
 
-        //Metodo GetList.
-        public async Task<List<Clientes>> GetClientes(Expression<Func<Clientes, bool>> criterio)
+        public async Task<List<Clientes>> GetList(Expression<Func<Clientes, bool>> criterio)
         {
             List<Clientes> lista = new List<Clientes>();
-            try
-            {
-                lista = await contexto.Cliente.Where(criterio).ToListAsync();
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-            return lista;
-        }
-        //
-        public async Task<List<Clientes>> GetClientes()
-        {
-            List<Clientes> lista = new List<Clientes>();
-            try
-            {
-                lista = await contexto.Cliente.ToListAsync();
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-            return lista;
-        }
 
+            try
+            {
+                lista = await contexto.Clientes.Where(criterio).ToListAsync();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+            return lista;
+        }
     }
 }
