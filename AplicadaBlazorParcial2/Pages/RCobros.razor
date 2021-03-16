@@ -69,8 +69,8 @@
                             {
                                 <tr>
                                     <td>@item.CobroId</td>
-                                    <td>@item.Fecha</td>
-                                    <td>@item.Monto</td>
+                                    <td>@item.VentaId</td>
+                                    <td>@item.</td>
                                     <td>@item.Cobrado</td>
 
 
@@ -127,43 +127,122 @@
 
     [Inject]
     public ClientesBLL clientesBLL { get; set; }
-    [Inject]
-    public VentasBLL ventasBLL { get; set; }
+
     [Inject]
     public CobrosBLL cobrosBLL { get; set; }
+
+    [Inject]
+    public VentasBLL ventasBLL { get; set; }
+
+    Cobros cobro = new Cobros();
+
+    List<Clientes> ClienteList = new List<Clientes>();
+    List<CobrosDetalles> VentaList = new List<CobrosDetalles>();
+
     [Parameter]
     public int CobroId { get; set; }
-    [Parameter]
-    public EventCallback<int> Cobrado { get; set; }
 
-    private int cobrado = 0;
-    private Cobros cobro = new Cobros();
-    private CobrosDetalles detalles = new CobrosDetalles();
-    private Ventas ventas = new Ventas();
 
-    List<dynamic> DetalleDTO = new List<dynamic>();
-
-    private decimal totales = 0;
-    List<Clientes> listClientes = new List<Clientes>();
-    List<Ventas> listVentas = new List<Ventas>();
-
-    protected async override Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        //listVentas = await ventasBLL.GetVentas(p => true);
-        listClientes = await clientesBLL.GetClientes(p => true);
+        Nuevo();
+    }
+
+    private void Nuevo()
+    {
+        /*cobro = new Cobros();
+        ClienteList = ClientesBLL.GetList(c => true);
+        ClienteList = clientesBLL.GetList (c => true);
+        VentaList = new List<CobrosDetalles>();
+        cobro.Fecha = DateTime.Now;*/
+        Limpiar();
+    }
+
+    private async void Guardar()
+    {
+        /*bool guardado;
+
+        cobro.cobrosDetalles.RemoveAll(d => d.Cobrado == 0);
+
+        guardado = cobrosBLL.Guardar(cobro);
+
+        if (guardado)
+        {
+            Toast.ShowSuccess("Se ha guardado exitosamente");
+            Nuevo();
+        }*/
+        cobro.CobroId = this.CobroId;
+        if (await cobrosBLL.Guardar(cobro))
+        {
+            //toast.ShowSuccess("Guardado.");
+            Limpiar();
+        }
+        else
+        {
+            //Toast.ShowError("No se pudo guardar exitosamente");
+        }
+
     }
 
     private async void Buscar()
     {
-        var registro = await cobrosBLL.Buscar(this.CobroId);
-        if (registro != null)
+        var cobro = await cobrosBLL.Buscar(this.CobroId);
+        cobro.cobrosDetalles = await ventasBLL.GetVentasCobradas(cobro.ClienteId);
+
+        if (cobro != null)
         {
-            this.cobro = registro;
-            //SourceDTO(registro.Detalles);
+            this.cobro = cobro;
+            //SourceDTO(mora.MorasDetalles);
         }
         else
         {
-            toast.ShowInfo("No se encontro ningún registro.");
+            //toast.ShowInfo("No se encontro el registro deseado.");
+        }
+
+        /*cobro.cobrosDetalles = await VentasBLL.GetVentasCobradas(cobro.ClienteId);
+
+        if (Cobro != null)
+            this.cobro = Cobro;
+        else
+            Toast.ShowError("Este cobro no existe");*/
+    }
+
+    private async void Eliminar()
+    {
+
+        if (await cobrosBLL.Eliminar(this.CobroId))
+        {
+            //toast.ShowSuccess("Eliminado");
+            Limpiar();
+        }
+        else
+        {
+            //toast.ShowError("Error al eliminar el registro.");
+        }
+        /*bool elimino;
+
+        elimino = cobrosBLL.Eliminar(cobro.CobroId);
+
+        if (elimino)
+        {
+            Nuevo();
+            Toast.ShowSuccess("Se ha Eliminado exitosamente");
+        }
+        else
+            Toast.ShowError("No se pudo eliminar exitosamente");*/
+    }
+
+    private void Cobrar(CobrosDetalles cobroDetalle)
+    {
+        if (cobroDetalle.Cobrado == 0)
+        {
+            cobroDetalle.Cobrado = cobroDetalle.Venta.Balance;
+            cobro.Cobro += cobroDetalle.Cobrado;
+        }
+        else
+        {
+            cobroDetalle.Cobrado = 0;
+            cobro.Cobro -= cobroDetalle.Venta.Balance;
         }
     }
 
@@ -171,106 +250,12 @@
     {
         this.cobro = new Cobros();
         this.CobroId = 0;
-        DetalleDTO = new List<dynamic>();
     }
 
-    private void Nuevo()
+    private async Task ObtenerVentasPendientes()
     {
-        Limpiar();
-    }
-
-    private bool Validar()
-    {
-        if (!(cobro.ClienteId >= 1))
-        {
-            toast.ShowWarning("Debe selecionar un suplidor antes de guardar.");
-            return false;
-        }
-
-        if (cobro.Cobrosdetalles.Count == 0)
-        {
-            toast.ShowWarning("Agregue como minimo un producto al detalle.");
-            return false;
-        }
-
-        return true;
-    }
-
-    private async void Guardar()
-    {
-        if (!Validar()) { return; }
-
-        cobro.CobroId = this.CobroId;
-        if (await cobrosBLL.Guardar(cobro))
-        {
-            toast.ShowSuccess("Registro guardado.");
-            Limpiar();
-        }
-        else
-        {
-            toast.ShowError("No se logro guardar el registro.");
-        }
-    }
-
-
-    private async void Eliminar()
-    {
-        if (await cobrosBLL.Eliminar(this.CobroId))
-        {
-            toast.ShowSuccess("Registro eliminado.");
-            Limpiar();
-        }
-        else
-        {
-            toast.ShowError("No se logro eliminar el registro.");
-        }
-    }
-
-    private void Remover(dynamic detalle)
-    {
-        cobro.BalanceCobro -= (detalle.Cantidad * detalle.Costo);
-
-        cobro.Cobrosdetalles.RemoveAll(i => i.Id == detalle.Id);
-        DetalleDTO.Remove(detalle);
-    }
-
-
-    private async void SourceDTO(List<CobrosDetalles> detalle)
-    {
-        foreach (var item in detalle)
-        {
-            var ventas = await ventasBLL.Buscar(item.CobroId);
-
-            var dto = new
-            {
-                item.Id,
-                item.Fecha
-                /*entas.Descripcion,
-                productos.Costo,
-                item.Cantidad,
-                total*/
-            };
-
-            DetalleDTO.Add(dto);
-        }
-    }
-
-    private void SourceDTO(CobrosDetalles detalle, Ventas ventas)
-    {
-        var dto = new
-        {
-            detalle.Id,
-            //ventas.VentaId,
-            ventas.Fecha,
-            //ventas.Monto,
-            //ventas.Balance,
-            /*ventas.
-            ventas*/
-            //detalle.totales,
-            // total
-        };
-
-        DetalleDTO.Add(dto);
+        if (cobro.CobroId == 0)
+            cobro.cobrosDetalles = await ventasBLL.GetVentasPendiente(cobro.ClienteId);
     }
 
 }
