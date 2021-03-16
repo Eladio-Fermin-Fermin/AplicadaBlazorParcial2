@@ -31,7 +31,7 @@ namespace AplicadaBlazorParcial2.BLL
             {
                 await contexto.Cobros.AddAsync(cobros);
                 Insertado = await contexto.SaveChangesAsync() > 0;
-                foreach (var item in cobros.Cobrosdetalles)
+                foreach (var item in cobros.cobrosDetalles)
                 {
 
                     item.Venta = contexto.Ventas.Find(item.VentaId);
@@ -59,7 +59,7 @@ namespace AplicadaBlazorParcial2.BLL
             try
             {
                 cobros = await contexto.Cobros.Where(m => m.CobroId == id)
-                    .Include(d => d.Cobrosdetalles)
+                    .Include(d => d.cobrosDetalles)
                     .AsNoTracking()
                     .SingleOrDefaultAsync();
             }
