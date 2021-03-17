@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AplicadaBlazorParcial2.Migrations
 {
     [DbContext(typeof(Contexto))]
-    [Migration("20210310234241_MIgration_Inicial")]
-    partial class MIgration_Inicial
+    [Migration("20210317004244_Migration_Inicial")]
+    partial class Migration_Inicial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -29,7 +29,7 @@ namespace AplicadaBlazorParcial2.Migrations
 
                     b.HasKey("ClienteId");
 
-                    b.ToTable("Cliente");
+                    b.ToTable("Clientes");
 
                     b.HasData(
                         new
@@ -55,16 +55,16 @@ namespace AplicadaBlazorParcial2.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<double>("BalanceCobro")
-                        .HasColumnType("REAL");
-
                     b.Property<int>("ClienteId")
                         .HasColumnType("INTEGER");
+
+                    b.Property<float>("Cobro")
+                        .HasColumnType("REAL");
 
                     b.Property<DateTime>("Fecha")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Observaciones")
+                    b.Property<string>("Observacion")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("Totales")
@@ -72,35 +72,29 @@ namespace AplicadaBlazorParcial2.Migrations
 
                     b.HasKey("CobroId");
 
-                    b.HasIndex("ClienteId");
-
-                    b.ToTable("Cobro");
+                    b.ToTable("Cobros");
                 });
 
             modelBuilder.Entity("AplicadaBlazorParcial2.Models.CobrosDetalles", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("CobroDetalleId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<double>("Balance")
-                        .HasColumnType("REAL");
-
-                    b.Property<double>("Cobrado")
+                    b.Property<float>("Cobrado")
                         .HasColumnType("REAL");
 
                     b.Property<int>("CobroId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime>("Fecha")
-                        .HasColumnType("TEXT");
+                    b.Property<int>("VentaId")
+                        .HasColumnType("INTEGER");
 
-                    b.Property<double>("Monto")
-                        .HasColumnType("REAL");
-
-                    b.HasKey("Id");
+                    b.HasKey("CobroDetalleId");
 
                     b.HasIndex("CobroId");
+
+                    b.HasIndex("VentaId");
 
                     b.ToTable("CobrosDetalles");
                 });
@@ -111,7 +105,7 @@ namespace AplicadaBlazorParcial2.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<double>("Balance")
+                    b.Property<float>("Balance")
                         .HasColumnType("REAL");
 
                     b.Property<int>("ClienteId")
@@ -120,87 +114,109 @@ namespace AplicadaBlazorParcial2.Migrations
                     b.Property<DateTime>("Fecha")
                         .HasColumnType("TEXT");
 
-                    b.Property<double>("Monto")
+                    b.Property<float>("Monto")
                         .HasColumnType("REAL");
 
                     b.HasKey("VentaId");
 
-                    b.ToTable("Venta");
+                    b.HasIndex("ClienteId");
+
+                    b.ToTable("Ventas");
 
                     b.HasData(
                         new
                         {
                             VentaId = 1,
-                            Balance = 1000.0,
+                            Balance = 1000f,
                             ClienteId = 1,
                             Fecha = new DateTime(2020, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Monto = 1000.0
+                            Monto = 1000f
                         },
                         new
                         {
                             VentaId = 2,
-                            Balance = 800.0,
+                            Balance = 800f,
                             ClienteId = 1,
                             Fecha = new DateTime(2020, 10, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Monto = 900.0
+                            Monto = 900f
                         },
                         new
                         {
                             VentaId = 3,
-                            Balance = 2000.0,
+                            Balance = 2000f,
                             ClienteId = 2,
                             Fecha = new DateTime(2020, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Monto = 2000.0
+                            Monto = 2000f
                         },
                         new
                         {
                             VentaId = 4,
-                            Balance = 1800.0,
+                            Balance = 1800f,
                             ClienteId = 2,
                             Fecha = new DateTime(2020, 10, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Monto = 1900.0
+                            Monto = 1900f
                         },
                         new
                         {
                             VentaId = 5,
-                            Balance = 3000.0,
+                            Balance = 3000f,
                             ClienteId = 3,
                             Fecha = new DateTime(2020, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Monto = 3000.0
+                            Monto = 3000f
                         },
                         new
                         {
                             VentaId = 6,
-                            Balance = 1900.0,
+                            Balance = 1900f,
                             ClienteId = 3,
                             Fecha = new DateTime(2020, 10, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Monto = 2900.0
+                            Monto = 2900f
                         });
-                });
-
-            modelBuilder.Entity("AplicadaBlazorParcial2.Models.Cobros", b =>
-                {
-                    b.HasOne("AplicadaBlazorParcial2.Models.Clientes", "Cliente")
-                        .WithMany()
-                        .HasForeignKey("ClienteId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Cliente");
                 });
 
             modelBuilder.Entity("AplicadaBlazorParcial2.Models.CobrosDetalles", b =>
                 {
-                    b.HasOne("AplicadaBlazorParcial2.Models.Cobros", null)
-                        .WithMany("Cobrosdetalles")
+                    b.HasOne("AplicadaBlazorParcial2.Models.Cobros", "Cobro")
+                        .WithMany("cobrosDetalles")
                         .HasForeignKey("CobroId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("AplicadaBlazorParcial2.Models.Ventas", "Venta")
+                        .WithMany("cobrosDetalles")
+                        .HasForeignKey("VentaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Cobro");
+
+                    b.Navigation("Venta");
+                });
+
+            modelBuilder.Entity("AplicadaBlazorParcial2.Models.Ventas", b =>
+                {
+                    b.HasOne("AplicadaBlazorParcial2.Models.Clientes", "Clientes")
+                        .WithMany("Ventas")
+                        .HasForeignKey("ClienteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Clientes");
+                });
+
+            modelBuilder.Entity("AplicadaBlazorParcial2.Models.Clientes", b =>
+                {
+                    b.Navigation("Ventas");
                 });
 
             modelBuilder.Entity("AplicadaBlazorParcial2.Models.Cobros", b =>
                 {
-                    b.Navigation("Cobrosdetalles");
+                    b.Navigation("cobrosDetalles");
+                });
+
+            modelBuilder.Entity("AplicadaBlazorParcial2.Models.Ventas", b =>
+                {
+                    b.Navigation("cobrosDetalles");
                 });
 #pragma warning restore 612, 618
         }

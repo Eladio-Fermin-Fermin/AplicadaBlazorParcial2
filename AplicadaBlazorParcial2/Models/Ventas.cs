@@ -9,12 +9,13 @@ namespace AplicadaBlazorParcial2.Models
 {
     public class Ventas
     {
+        [Key]
         public int VentaId { get; set; }
         public DateTime Fecha { get; set; }
         public int ClienteId { get; set; }
         public float Monto { get; set; }
         public float Balance { get; set; }
-        public virtual Clientes Cliente { get; set; }
+        public virtual Clientes Clientes { get; set; }
 
         [ForeignKey("VentaId")]
         public virtual List<CobrosDetalles> cobrosDetalles { get; set; } = new List<CobrosDetalles>();

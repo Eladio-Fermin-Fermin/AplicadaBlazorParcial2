@@ -37,6 +37,22 @@ namespace AplicadaBlazorParcial2.BLL
             return ventas;
         }
 
+        public async Task<List<Ventas>> GetVentas()
+        {
+            List<Ventas> lista = new List<Ventas>();
+
+            try
+            {
+                lista = await contexto.Ventas.ToListAsync();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+            return lista;
+        }
 
         public async Task<List<Ventas>> GetList(Expression<Func<Ventas, bool>> criterio)
         {

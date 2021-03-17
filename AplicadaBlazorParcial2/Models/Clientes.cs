@@ -14,6 +14,6 @@ namespace AplicadaBlazorParcial2.Models
         public string Nombres { get; set; }
 
         [ForeignKey("ClienteId")]
-        public virtual List<Ventas> ventas { get; set; } = new List<Ventas>();
+        public virtual List<Ventas> Ventas { get; set; } = new List<Ventas>();
     }
 }

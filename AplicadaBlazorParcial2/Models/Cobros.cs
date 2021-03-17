@@ -16,6 +16,7 @@ namespace AplicadaBlazorParcial2.Models
         public int Totales { get; set; }
         public float Cobro { get; set; }
         public string Observacion { get; set; }
+
         [ForeignKey("CobroId")]
         public virtual List<CobrosDetalles> cobrosDetalles { get; set; } = new List<CobrosDetalles>();
         public Cobros()

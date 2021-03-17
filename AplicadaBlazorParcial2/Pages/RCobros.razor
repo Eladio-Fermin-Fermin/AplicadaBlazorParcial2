@@ -1,11 +1,10 @@
 ﻿@page "/Cobros"
-
 @page "/Cobros/{CobroId:int}"
 @inject IToastService toast 
 
 <div class="shadow-lg p-3 mb-5 bg-white rounded">
 
-    <EditForm Model="cobro" OnValidSubmit="Guardar">
+    <EditForm Model="cobros" OnValidSubmit="Guardar">
         <DataAnnotationsValidator />
         <div class="card">
 
@@ -24,7 +23,7 @@
                                     <div class="input-group-append">
                                         <button type="button" style="z-index:0" class="btn btn-secondary" @onclick="Buscar">Buscar</button>
                                     </div>
-                                    <ValidationMessage For="@(() => cobro.CobroId)" />
+                                    <ValidationMessage For="@(() => cobros.CobroId)" />
                                 </div>
                             </div>
                         </div>
@@ -33,8 +32,8 @@
                     @*Fecha*@
                     <div class="form-group">
                         <label>Fecha</label>
-                        <InputDate @bind-Value="cobro.Fecha" class="form-control" />
-                        <ValidationMessage For="@(() => cobro.Fecha)" />
+                        <InputDate @bind-Value="cobros.Fecha" class="form-control" />
+                        <ValidationMessage For="@(() => cobros.Fecha)" />
                     </div>
 
                 </form>
@@ -42,9 +41,9 @@
                 @*Cliente*@
                 <div class="form-group">
                     <label>Clientes</label>
-                    <select @bind="cobro.ClienteId" class="form-control" @onblur="ObtenerVentasPendientes">
+                    <select @bind="cobros.ClienteId" class="form-control" @onblur="Agregar">
                         <option value="0" disabled selected>Seleccione un cliente</option>
-                        @foreach (var item in ClienteList)
+                        @foreach (var item in listCliente)
                         {
                             <option value="@item.ClienteId">@item.Nombres</option>
                         }
@@ -71,15 +70,15 @@
                         </thead>
                         <tbody class="bg-white">
 
-                            @foreach (var item in cobro.cobrosDetalles)
+                            @foreach (var item in DetalleD)
                             {
                                 <tr>
                                     <td>@item.VentaId</td>
-                                    <td>@item.Venta.Fecha.ToString("dd/MM/yyyy")</td>
-                                    <td>@item.Venta.Monto.ToString("N2")</td>
-                                    <td>@item.Venta.Balance.ToString("N2")</td>
+                                    <td>@item.Fecha.ToString("dd/MM/yyyy")</td>
+                                    <td>@item.Monto.ToString("N2")</td>
+                                    <td>@item.Balance.ToString("N2")</td>
                                     <td>@item.Cobrado.ToString("N2")</td>
-                                    <td> <input type="checkbox" @onchange="@(() => Cobrar(item))" /> </td>
+                                    <td> <input type="checkbox" /> </td>
                                 </tr>
                             }
                         </tbody>
@@ -92,19 +91,19 @@
             <div class=" form-group form-inline">
                 <div class="form-group col-6">
                     <label>Totales</label>
-                    <span class="form-control">@cobro.cobrosDetalles.Count()</span>
+                    <span class="form-control">@cobros.cobrosDetalles.Count()</span>
                 </div>
 
                 <div class="form-group col-6">
                     <label>Cobro Total</label>
-                    <InputNumber @bind-Value="cobro.Cobro" class="form-control" readOnly="true" />
-                    <ValidationMessage For="@(() => cobro.Cobro)" />
+                    <InputNumber @bind-Value="cobros.Cobro" class="form-control" readOnly="true" />
+                    <ValidationMessage For="@(() => cobros.Cobro)" />
                 </div>
             </div>
 
             <div class="form-group ">
                 <label>Observaciones</label>
-                <textarea @bind="cobro.Observacion" class="form-control" row="5" placeholder="Observacion" />
+                <textarea @bind="cobros.Observacion" class="form-control" row="5" placeholder="Observacion" />
             </div>
 
             <div class="card-footer">
@@ -126,72 +125,79 @@
 @code {
 
     [Inject]
-    public ClientesBLL clientesBLL { get; set; }
-
-    [Inject]
     public CobrosBLL cobrosBLL { get; set; }
 
     [Inject]
     public VentasBLL ventasBLL { get; set; }
 
-    Cobros cobro = new Cobros();
-
-    List<Clientes> ClienteList = new List<Clientes>();
-    List<CobrosDetalles> VentaList = new List<CobrosDetalles>();
+    [Inject]
+    public ClientesBLL clientesBLL { get; set; }
 
     [Parameter]
     public int CobroId { get; set; }
+    private List<dynamic> DetalleD = new List<dynamic>();
+    private Cobros cobros = new Cobros();
+    private Ventas ventas = new Ventas();
+    private Clientes clientes = new Clientes();
+    private CobrosDetalles detalle = new CobrosDetalles();
 
+    List<Clientes> listCliente = new List<Clientes>();
+    List<Ventas> listVenta = new List<Ventas>();
 
-    protected override void OnInitialized()
+    protected async override Task OnInitializedAsync()
     {
-        Nuevo();
+        listVenta = await ventasBLL.GetVentas();
+        listCliente = await clientesBLL.GetClientes();
+        Limpiar();
+    }
+
+    private async void Buscar()
+    {
+        var registro = await cobrosBLL.Buscar(this.CobroId);
+        if (registro != null)
+        {
+            this.cobros = registro;
+            SourceDTO(cobros.cobrosDetalles);
+        }
+        else
+        {
+            toast.ShowInfo("No se encontro el registro deseado.");
+        }
+    }
+
+    private void Agregar()
+    {
+
+        cobros.cobrosDetalles.Add(detalle);
+
+        SourceDTO(detalle, ventas);
+
+        detalle = new CobrosDetalles();
+        clientes = new Clientes();
+
     }
 
     private void Nuevo()
     {
-        /*cobro = new Cobros();
-        ClienteList = clientesBLL.GetList(c => true);
-        VentaList = new List<CobrosDetalles>();
-        cobro.Fecha = DateTime.Now;*/
         Limpiar();
     }
 
     private async void Guardar()
     {
-        
-        cobro.CobroId = this.CobroId;
-        if (await cobrosBLL.Guardar(cobro))
+        cobros.CobroId = this.CobroId;
+        if (await cobrosBLL.Guardar(cobros))
         {
             toast.ShowSuccess("Guardado.");
             Limpiar();
         }
         else
         {
-            toast.ShowError("No se pudo guardar exitosamente");
+            toast.ShowError("Error al guardar el registro.");
         }
-
-    }
-
-    private async void Buscar()
-    {
-        var cobro = await cobrosBLL.Buscar(this.CobroId);
-        cobro.cobrosDetalles = await ventasBLL.GetVentasPagada(cobro.ClienteId);
-
-        if (cobro != null)
-        {
-            this.cobro = cobro;
-        }
-        else
-        {
-            toast.ShowInfo("Este cobro no existe");
-        }
-
     }
 
     private async void Eliminar()
     {
-
         if (await cobrosBLL.Eliminar(this.CobroId))
         {
             toast.ShowSuccess("Eliminado");
@@ -203,30 +209,60 @@
         }
     }
 
-    private void Cobrar(CobrosDetalles cobroDetalle)
-    {
-        if (cobroDetalle.Cobrado == 0)
-        {
-            cobroDetalle.Cobrado = cobroDetalle.Venta.Balance;
-            cobro.Cobro += cobroDetalle.Cobrado;
-        }
-        else
-        {
-            cobroDetalle.Cobrado = 0;
-            cobro.Cobro -= cobroDetalle.Venta.Balance;
-        }
-    }
-
     private void Limpiar()
     {
-        this.cobro = new Cobros();
+        this.cobros = new Cobros();
         this.CobroId = 0;
     }
 
-    private async Task ObtenerVentasPendientes()
+    private async void SourceDTO(List<CobrosDetalles> detalle)
     {
-        if (cobro.CobroId == 0)
-            cobro.cobrosDetalles = await ventasBLL.GetVentasPorPagar(cobro.ClienteId);
+        foreach (var item in detalle)
+        {
+            var venta = await ventasBLL.Buscar(item.VentaId);
+            var cliente = await clientesBLL.Buscar(venta.ClienteId);
+
+            var dto = new
+            {
+                item.CobroId,
+                item.VentaId,
+                venta.Fecha,
+                venta.Monto,
+                venta.Balance,
+                item.Cobrado
+            };
+
+            DetalleD.Add(dto);
+        }
+    }
+
+
+    private void SourceDTO(CobrosDetalles detalle, Ventas venta)
+    {
+        var dto = new
+        {
+            detalle.CobroId,
+            detalle.VentaId,
+            venta.Fecha,
+            venta.Monto,
+            venta.Balance,
+            detalle.Cobrado
+
+
+        };
+
+        DetalleD.Add(dto);
+    }
+
+
+    private async void GetNombre()
+    {
+        if (detalle.VentaId != 0)
+        {
+            var venta = await ventasBLL.Buscar(detalle.VentaId);
+            clientes = await clientesBLL.Buscar(venta.ClienteId);
+
+        }
     }
 
 }

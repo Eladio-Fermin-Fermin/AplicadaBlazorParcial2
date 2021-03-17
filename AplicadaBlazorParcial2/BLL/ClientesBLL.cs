@@ -17,6 +17,44 @@ namespace AplicadaBlazorParcial2.BLL
             this.contexto = contexto;
         }
 
+        public async Task<Clientes> Buscar(int id)
+        {
+            Clientes clientes;
+
+            try
+            {
+
+                clientes = await contexto.Clientes
+                   .Where(p => p.ClienteId == id)
+                   .AsNoTracking()
+                   .FirstOrDefaultAsync();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+            return clientes;
+        }
+
+        public async Task<List<Clientes>> GetClientes()
+        {
+            List<Clientes> lista = new List<Clientes>();
+
+            try
+            {
+                lista = await contexto.Clientes.ToListAsync();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+            return lista;
+        }
+
         public async Task<List<Clientes>> GetList(Expression<Func<Clientes, bool>> criterio)
         {
             List<Clientes> lista = new List<Clientes>();
