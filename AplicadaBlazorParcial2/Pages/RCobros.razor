@@ -41,7 +41,7 @@
                 @*Cliente*@
                 <div class="form-group">
                     <label>Clientes</label>
-                    <select @bind="cobros.ClienteId" class="form-control" @onblur="Agregar">
+                    <select @bind="cobros.ClienteId" class="form-control" @onblur="BuscarFacturaPerdiente">
                         <option value="0" disabled selected>Seleccione un cliente</option>
                         @foreach (var item in listCliente)
                         {
@@ -70,14 +70,14 @@
                         </thead>
                         <tbody class="bg-white">
 
-                            @foreach (var item in DetalleD)
+                            @foreach (var item in listVenta)
                             {
                                 <tr>
                                     <td>@item.VentaId</td>
                                     <td>@item.Fecha.ToString("dd/MM/yyyy")</td>
                                     <td>@item.Monto.ToString("N2")</td>
                                     <td>@item.Balance.ToString("N2")</td>
-                                    <td>@item.Cobrado.ToString("N2")</td>
+                                    
                                     <td> <input type="checkbox" /> </td>
                                 </tr>
                             }
@@ -135,7 +135,7 @@
 
     [Parameter]
     public int CobroId { get; set; }
-    private List<dynamic> DetalleD = new List<dynamic>();
+    //private List<dynamic> DetalleD = new List<dynamic>();
     private Cobros cobros = new Cobros();
     private Ventas ventas = new Ventas();
     private Clientes clientes = new Clientes();
@@ -165,15 +165,10 @@
         }
     }
 
-    private void Agregar()
+    private async Task BuscarFacturaPerdiente()
     {
-
-        cobros.cobrosDetalles.Add(detalle);
-
-        SourceDTO(detalle, ventas);
-
-        detalle = new CobrosDetalles();
-        clientes = new Clientes();
+        listVenta = await ventasBLL.GetList(v => v.ClienteId == cobros.ClienteId);
+        
 
     }
 
@@ -231,8 +226,7 @@
                 venta.Balance,
                 item.Cobrado
             };
-
-            DetalleD.Add(dto);
+            
         }
     }
 
@@ -248,10 +242,8 @@
             venta.Balance,
             detalle.Cobrado
 
-
         };
 
-        DetalleD.Add(dto);
     }
 
 
