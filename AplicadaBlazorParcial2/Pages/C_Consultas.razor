@@ -62,12 +62,12 @@
                         <tbody class="bg-white">
                             @foreach (var item in CobroList)
                             {
-                                <tr>
-                                    <td>@item.CobroId</td>
-                                    <td>@item.Fecha.ToString("dd/MM/yyyy")</td>
-                                    <td>@item.ClienteId</td>
-                                    <td>@item.TotalesCobro</td>
-                                </tr>
+                            <tr>
+                                <td>@item.CobroId</td>
+                                <td>@item.Fecha.ToString("dd/MM/yyyy")</td>
+                                <td>@item.ClienteId</td>
+                                <td>@item.TotalesCobro</td>
+                            </tr>
                             }
                         </tbody>
                     </table>
@@ -138,6 +138,27 @@
                 }
                 break;
         }
+
+        /*switch (Filtro)
+        {
+            case "0": //Todo
+                CobroList = await cobrosBLL.GetList(c => true);
+                break;
+            case "1":
+                if (Criterio.Trim().Length > 0)
+                {
+                    try
+                    {
+                        CobroList = await cobrosBLL.GetList(c => c.CobroId == id);
+                    }
+                    catch (FormatException)
+                    {
+                        toast.ShowWarning("Digite un Id");
+                    }
+                }
+                break;
+        }*/
+
 
         switch (FiltroFecha)
         {
