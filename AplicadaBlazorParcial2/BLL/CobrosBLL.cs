@@ -19,7 +19,23 @@ namespace AplicadaBlazorParcial2.BLL
 
         public async Task<bool> Guardar(Cobros cobros)
         {
-            return await Insertar(cobros);
+            bool paso = false;
+
+            try
+            {
+                if (!await contexto.Cobros.AnyAsync(c => c.CobroId == cobros.CobroId))
+                {
+                    contexto.Cobros.Add(cobros);
+                    paso = await contexto.SaveChangesAsync() > 0;
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+            return paso;
         }
 
         private async Task<bool> Insertar(Cobros cobros)
@@ -58,10 +74,19 @@ namespace AplicadaBlazorParcial2.BLL
 
             try
             {
-                cobros = await contexto.Cobros.Where(m => m.CobroId == id)
-                    .Include(d => d.cobrosDetalles)
+                cobros = await contexto.Cobros.Where(c => c.CobroId == id)
+                    .Include(c => c.cobrosDetalles)
                     .AsNoTracking()
                     .SingleOrDefaultAsync();
+
+                var entidad = contexto
+                .Set<Cobros>()
+                .Local.SingleOrDefault(c => c.CobroId == id);
+
+                if (entidad != null)
+                {
+                    contexto.Entry(entidad).State = EntityState.Detached;
+                }
             }
             catch (Exception)
             {
@@ -95,7 +120,7 @@ namespace AplicadaBlazorParcial2.BLL
             return ok;
         }
 
-        /*public async Task<List<Cobros>> GetCobros()
+        public async Task<List<Cobros>> GetCobros()
         {
             List<Cobros> lista = new List<Cobros>();
 
@@ -110,7 +135,7 @@ namespace AplicadaBlazorParcial2.BLL
             }
 
             return lista;
-        }*/
+        }
 
         public async Task<List<Cobros>> GetList(Expression<Func<Cobros, bool>> criterio)
         {

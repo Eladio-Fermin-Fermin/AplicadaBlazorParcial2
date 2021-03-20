@@ -160,7 +160,7 @@
         if (registro != null)
         {
             this.cobros = registro;
-            SourceDTO(cobros.cobrosDetalles);
+            ListadeCobros();
         }
         else
         {
@@ -182,6 +182,9 @@
 
     private async void Guardar()
     {
+        if (!Validacion())
+            return;
+
         cobros.CobroId = this.CobroId;
         if (await cobrosBLL.Guardar(cobros))
         {
@@ -192,6 +195,17 @@
         {
             toast.ShowError("Error al guardar el registro.");
         }
+    }
+
+    public bool Validacion()
+    {
+        if (cobros.cobrosDetalles.Count != 0)
+        {
+            toast.ShowInfo("Facturas no marcadas para cobrar.");
+            return false;
+        }
+
+        return true;
     }
 
     private async void Eliminar()
@@ -247,13 +261,18 @@
         };
     }
 
+    private async void ListadeCobros()
+    {
+        listVenta = await ventasBLL.GetList(c => c.ClienteId == cobros.ClienteId && c.CobroNoPerdiente == true);
+    }
+
     private void CotejoCobrar(Ventas venta)
     {
         if (venta.CobroNoPerdiente == false)
         {
             cobros.TotalesCobro += venta.Balance;
             venta.Cobrado = venta.Balance;
-            cobros.ConteoCobro--;
+            cobros.ConteoCobro++;
         }
         else
         {
