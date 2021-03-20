@@ -13,7 +13,8 @@ namespace AplicadaBlazorParcial2.Models
         public int CobroId { get; set; }
         public int ClienteId { get; set; }
         public DateTime Fecha { get; set; }
-        public int Totales { get; set; }
+        public int ConteoCobro { get; set; }
+        public double TotalesCobro { get; set; }
         public float Cobro { get; set; }
         public string Observacion { get; set; }
 

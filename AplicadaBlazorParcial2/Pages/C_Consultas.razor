@@ -122,7 +122,7 @@
         switch (Filtro)
         {
             case "0": //Todo
-                VentaList = await ventasBLL.GetList(c => true);
+                CobroList = await cobrosBLL.GetList(c => true);
                 break;
             case "1":
                 if (Criterio.Trim().Length > 0)
@@ -137,12 +137,6 @@
                     }
                 }
                 break;
-                /*else
-                {
-                    CobroList = await cobrosBLL.GetList(c => true).
-                        (c => c.CobroId).ToList();
-                }
-                break;*/
         }
 
         switch (FiltroFecha)

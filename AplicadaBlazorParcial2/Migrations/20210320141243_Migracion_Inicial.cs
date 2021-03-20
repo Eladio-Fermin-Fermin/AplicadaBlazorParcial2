@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace AplicadaBlazorParcial2.Migrations
 {
-    public partial class Migration_Inicial : Migration
+    public partial class Migracion_Inicial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -28,7 +28,8 @@ namespace AplicadaBlazorParcial2.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     ClienteId = table.Column<int>(type: "INTEGER", nullable: false),
                     Fecha = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    Totales = table.Column<int>(type: "INTEGER", nullable: false),
+                    ConteoCobro = table.Column<int>(type: "INTEGER", nullable: false),
+                    TotalesCobro = table.Column<double>(type: "REAL", nullable: false),
                     Cobro = table.Column<float>(type: "REAL", nullable: false),
                     Observacion = table.Column<string>(type: "TEXT", nullable: true)
                 },
@@ -46,7 +47,9 @@ namespace AplicadaBlazorParcial2.Migrations
                     Fecha = table.Column<DateTime>(type: "TEXT", nullable: false),
                     ClienteId = table.Column<int>(type: "INTEGER", nullable: false),
                     Monto = table.Column<float>(type: "REAL", nullable: false),
-                    Balance = table.Column<float>(type: "REAL", nullable: false)
+                    Balance = table.Column<float>(type: "REAL", nullable: false),
+                    CobroNoPerdiente = table.Column<bool>(type: "INTEGER", nullable: false),
+                    Cobrado = table.Column<double>(type: "REAL", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -103,33 +106,33 @@ namespace AplicadaBlazorParcial2.Migrations
 
             migrationBuilder.InsertData(
                 table: "Ventas",
-                columns: new[] { "VentaId", "Balance", "ClienteId", "Fecha", "Monto" },
-                values: new object[] { 1, 1000f, 1, new DateTime(2020, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1000f });
+                columns: new[] { "VentaId", "Balance", "ClienteId", "Cobrado", "CobroNoPerdiente", "Fecha", "Monto" },
+                values: new object[] { 1, 1000f, 1, 0.0, false, new DateTime(2020, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1000f });
 
             migrationBuilder.InsertData(
                 table: "Ventas",
-                columns: new[] { "VentaId", "Balance", "ClienteId", "Fecha", "Monto" },
-                values: new object[] { 2, 800f, 1, new DateTime(2020, 10, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 900f });
+                columns: new[] { "VentaId", "Balance", "ClienteId", "Cobrado", "CobroNoPerdiente", "Fecha", "Monto" },
+                values: new object[] { 2, 800f, 1, 0.0, false, new DateTime(2020, 10, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 900f });
 
             migrationBuilder.InsertData(
                 table: "Ventas",
-                columns: new[] { "VentaId", "Balance", "ClienteId", "Fecha", "Monto" },
-                values: new object[] { 3, 2000f, 2, new DateTime(2020, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 2000f });
+                columns: new[] { "VentaId", "Balance", "ClienteId", "Cobrado", "CobroNoPerdiente", "Fecha", "Monto" },
+                values: new object[] { 3, 2000f, 2, 0.0, false, new DateTime(2020, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 2000f });
 
             migrationBuilder.InsertData(
                 table: "Ventas",
-                columns: new[] { "VentaId", "Balance", "ClienteId", "Fecha", "Monto" },
-                values: new object[] { 4, 1800f, 2, new DateTime(2020, 10, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1900f });
+                columns: new[] { "VentaId", "Balance", "ClienteId", "Cobrado", "CobroNoPerdiente", "Fecha", "Monto" },
+                values: new object[] { 4, 1800f, 2, 0.0, false, new DateTime(2020, 10, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1900f });
 
             migrationBuilder.InsertData(
                 table: "Ventas",
-                columns: new[] { "VentaId", "Balance", "ClienteId", "Fecha", "Monto" },
-                values: new object[] { 5, 3000f, 3, new DateTime(2020, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 3000f });
+                columns: new[] { "VentaId", "Balance", "ClienteId", "Cobrado", "CobroNoPerdiente", "Fecha", "Monto" },
+                values: new object[] { 5, 3000f, 3, 0.0, false, new DateTime(2020, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 3000f });
 
             migrationBuilder.InsertData(
                 table: "Ventas",
-                columns: new[] { "VentaId", "Balance", "ClienteId", "Fecha", "Monto" },
-                values: new object[] { 6, 1900f, 3, new DateTime(2020, 10, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 2900f });
+                columns: new[] { "VentaId", "Balance", "ClienteId", "Cobrado", "CobroNoPerdiente", "Fecha", "Monto" },
+                values: new object[] { 6, 1900f, 3, 0.0, false, new DateTime(2020, 10, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 2900f });
 
             migrationBuilder.CreateIndex(
                 name: "IX_CobrosDetalles_CobroId",

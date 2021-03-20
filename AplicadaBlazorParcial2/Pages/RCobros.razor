@@ -72,14 +72,15 @@
 
                             @foreach (var item in listVenta)
                             {
-                                <tr>
-                                    <td>@item.VentaId</td>
-                                    <td>@item.Fecha.ToString("dd/MM/yyyy")</td>
-                                    <td>@item.Monto.ToString("N2")</td>
-                                    <td>@item.Balance.ToString("N2")</td>
-                                    
-                                    <td> <input type="checkbox" /> </td>
-                                </tr>
+                            <tr>
+                                <td>@item.VentaId</td>
+                                <td>@item.Fecha.ToString("dd/MM/yyyy")</td>
+                                <td>@item.Monto.ToString("N2")</td>
+                                <td>@item.Balance.ToString("N2")</td>
+                                <td>@item.Cobrado.ToString("N2")</td>
+                                <td> <input type="checkbox" @onchange="@(() => CotejoCobrar(item))" /> </td>
+
+                            </tr>
                             }
                         </tbody>
                     </table>
@@ -91,12 +92,12 @@
             <div class=" form-group form-inline">
                 <div class="form-group col-6">
                     <label>Totales</label>
-                    <span class="form-control">@cobros.cobrosDetalles.Count()</span>
+                    <span class="form-control">@cobros.ConteoCobro</span>
                 </div>
 
                 <div class="form-group col-6">
                     <label>Cobro Total</label>
-                    <InputNumber @bind-Value="cobros.Cobro" class="form-control" readOnly="true" />
+                    <InputNumber @bind-Value="cobros.TotalesCobro" class="form-control" readOnly="true" />
                     <ValidationMessage For="@(() => cobros.Cobro)" />
                 </div>
             </div>
@@ -148,7 +149,9 @@
     {
         listVenta = await ventasBLL.GetVentas();
         listCliente = await clientesBLL.GetClientes();
+
         Limpiar();
+        BuscarFacturaPerdiente();
     }
 
     private async void Buscar()
@@ -167,8 +170,8 @@
 
     private async Task BuscarFacturaPerdiente()
     {
+
         listVenta = await ventasBLL.GetList(v => v.ClienteId == cobros.ClienteId);
-        
 
     }
 
@@ -226,7 +229,6 @@
                 venta.Balance,
                 item.Cobrado
             };
-            
         }
     }
 
@@ -243,17 +245,21 @@
             detalle.Cobrado
 
         };
-
     }
 
-
-    private async void GetNombre()
+    private void CotejoCobrar(Ventas venta)
     {
-        if (detalle.VentaId != 0)
+        if (venta.CobroNoPerdiente == false)
         {
-            var venta = await ventasBLL.Buscar(detalle.VentaId);
-            clientes = await clientesBLL.Buscar(venta.ClienteId);
-
+            cobros.TotalesCobro += venta.Balance;
+            venta.Cobrado = venta.Balance;
+            cobros.ConteoCobro--;
+        }
+        else
+        {
+            cobros.TotalesCobro += venta.Balance;
+            venta.Cobrado += venta.Balance;
+            cobros.ConteoCobro++;
         }
     }
 

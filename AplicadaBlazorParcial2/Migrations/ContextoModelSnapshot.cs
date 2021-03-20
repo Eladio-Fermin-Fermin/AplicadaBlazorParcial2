@@ -59,14 +59,17 @@ namespace AplicadaBlazorParcial2.Migrations
                     b.Property<float>("Cobro")
                         .HasColumnType("REAL");
 
+                    b.Property<int>("ConteoCobro")
+                        .HasColumnType("INTEGER");
+
                     b.Property<DateTime>("Fecha")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Observacion")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("Totales")
-                        .HasColumnType("INTEGER");
+                    b.Property<double>("TotalesCobro")
+                        .HasColumnType("REAL");
 
                     b.HasKey("CobroId");
 
@@ -109,6 +112,12 @@ namespace AplicadaBlazorParcial2.Migrations
                     b.Property<int>("ClienteId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<double>("Cobrado")
+                        .HasColumnType("REAL");
+
+                    b.Property<bool>("CobroNoPerdiente")
+                        .HasColumnType("INTEGER");
+
                     b.Property<DateTime>("Fecha")
                         .HasColumnType("TEXT");
 
@@ -127,6 +136,8 @@ namespace AplicadaBlazorParcial2.Migrations
                             VentaId = 1,
                             Balance = 1000f,
                             ClienteId = 1,
+                            Cobrado = 0.0,
+                            CobroNoPerdiente = false,
                             Fecha = new DateTime(2020, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Monto = 1000f
                         },
@@ -135,6 +146,8 @@ namespace AplicadaBlazorParcial2.Migrations
                             VentaId = 2,
                             Balance = 800f,
                             ClienteId = 1,
+                            Cobrado = 0.0,
+                            CobroNoPerdiente = false,
                             Fecha = new DateTime(2020, 10, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Monto = 900f
                         },
@@ -143,6 +156,8 @@ namespace AplicadaBlazorParcial2.Migrations
                             VentaId = 3,
                             Balance = 2000f,
                             ClienteId = 2,
+                            Cobrado = 0.0,
+                            CobroNoPerdiente = false,
                             Fecha = new DateTime(2020, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Monto = 2000f
                         },
@@ -151,6 +166,8 @@ namespace AplicadaBlazorParcial2.Migrations
                             VentaId = 4,
                             Balance = 1800f,
                             ClienteId = 2,
+                            Cobrado = 0.0,
+                            CobroNoPerdiente = false,
                             Fecha = new DateTime(2020, 10, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Monto = 1900f
                         },
@@ -159,6 +176,8 @@ namespace AplicadaBlazorParcial2.Migrations
                             VentaId = 5,
                             Balance = 3000f,
                             ClienteId = 3,
+                            Cobrado = 0.0,
+                            CobroNoPerdiente = false,
                             Fecha = new DateTime(2020, 9, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Monto = 3000f
                         },
@@ -167,6 +186,8 @@ namespace AplicadaBlazorParcial2.Migrations
                             VentaId = 6,
                             Balance = 1900f,
                             ClienteId = 3,
+                            Cobrado = 0.0,
+                            CobroNoPerdiente = false,
                             Fecha = new DateTime(2020, 10, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Monto = 2900f
                         });
