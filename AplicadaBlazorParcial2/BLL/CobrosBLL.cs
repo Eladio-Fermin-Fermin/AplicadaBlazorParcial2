@@ -69,7 +69,6 @@ namespace AplicadaBlazorParcial2.BLL
             bool ok = false;
             try
             {
-
                 var registro = await Buscar(id);
 
                 if (registro != null)

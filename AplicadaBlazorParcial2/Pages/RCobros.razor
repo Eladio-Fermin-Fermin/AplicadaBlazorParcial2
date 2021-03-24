@@ -148,7 +148,7 @@
 
         Limpiar();
         await BuscarVentasCobradas();
-        
+
     }
 
     private async void Buscar()
@@ -205,7 +205,7 @@
     {
         if (cobros.cobrosDetalles.Count != 0)
         {
-            toast.ShowInfo("Facturas no marcadas para cobrar.");
+            toast.ShowInfo("No hay cobro marcado.");
             return false;
         }
 
@@ -214,6 +214,7 @@
 
     private async void Eliminar()
     {
+        
         if (await cobrosBLL.Eliminar(this.CobroId))
         {
             toast.ShowSuccess("Eliminado");
