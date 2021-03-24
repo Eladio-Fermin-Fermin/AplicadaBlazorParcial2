@@ -19,7 +19,7 @@
                             <div class="form-group">
                                 <label>Id</label>
                                 <div class="input-group">
-                                    <InputNumber @bind-Value="this.CobroId" class="form-control" />
+                                    <InputNumber @bind-Value="cobros.CobroId" class="form-control" />
                                     <div class="input-group-append">
                                         <button type="button" style="z-index:0" class="btn btn-secondary" @onclick="Buscar">Buscar</button>
                                     </div>
@@ -41,7 +41,7 @@
                 @*Cliente*@
                 <div class="form-group">
                     <label>Clientes</label>
-                    <select @bind="cobros.ClienteId" class="form-control" @onblur="BuscarFacturaPerdiente">
+                    <select value="@cobros.ClienteId" class="form-control" @onchange="BuscarFacturaPerdiente">
                         <option value="0" disabled selected>Seleccione un cliente</option>
                         @foreach (var item in listCliente)
                         {
@@ -49,7 +49,6 @@
                         }
                     </select>
                 </div>
-
 
             </div>
         </div>
@@ -70,16 +69,15 @@
                         </thead>
                         <tbody class="bg-white">
 
-                            @foreach (var item in listVenta)
+                            @foreach (var item in cobros.cobrosDetalles)
                             {
                             <tr>
                                 <td>@item.VentaId</td>
-                                <td>@item.Fecha.ToString("dd/MM/yyyy")</td>
-                                <td>@item.Monto.ToString("N2")</td>
-                                <td>@item.Balance.ToString("N2")</td>
+                                <td>@item.Venta.Fecha.ToString("dd/MM/yyyy")</td>
+                                <td>@item.Venta.Monto.ToString("N2")</td>
+                                <td>@item.Venta.Balance.ToString("N2")</td>
                                 <td>@item.Cobrado.ToString("N2")</td>
                                 <td> <input type="checkbox" @onchange="@(() => CotejoCobrar(item))" /> </td>
-
                             </tr>
                             }
                         </tbody>
@@ -87,7 +85,6 @@
                 </div>
 
             </div>
-
 
             <div class=" form-group form-inline">
                 <div class="form-group col-6">
@@ -136,7 +133,6 @@
 
     [Parameter]
     public int CobroId { get; set; }
-    //private List<dynamic> DetalleD = new List<dynamic>();
     private Cobros cobros = new Cobros();
     private Ventas ventas = new Ventas();
     private Clientes clientes = new Clientes();
@@ -145,22 +141,24 @@
     List<Clientes> listCliente = new List<Clientes>();
     List<Ventas> listVenta = new List<Ventas>();
 
-    protected async override Task OnInitializedAsync()
+    protected override async void OnInitialized()
     {
         listVenta = await ventasBLL.GetVentas();
         listCliente = await clientesBLL.GetClientes();
 
         Limpiar();
-        BuscarFacturaPerdiente();
+        await BuscarVentasCobradas();
+        
     }
 
     private async void Buscar()
     {
-        var registro = await cobrosBLL.Buscar(this.CobroId);
-        if (registro != null)
+        var cobro = await cobrosBLL.Buscar(cobros.CobroId);
+        if (cobro != null)
         {
-            this.cobros = registro;
-            //ListadeCobros();
+            cobro.cobrosDetalles = await ventasBLL.GetVentasPagada(cobro.ClienteId);
+            this.cobros = cobro;
+
         }
         else
         {
@@ -168,10 +166,15 @@
         }
     }
 
-    private async Task BuscarFacturaPerdiente()
+    private async Task BuscarFacturaPerdiente(ChangeEventArgs arg)
     {
 
         listVenta = await ventasBLL.GetList(v => v.ClienteId == cobros.ClienteId);
+
+        cobros.ClienteId = int.Parse(arg.Value.ToString());
+
+        if (cobros.CobroId >= 0)
+            cobros.cobrosDetalles = await ventasBLL.GetVentasPorPagar(cobros.ClienteId);
 
     }
 
@@ -186,6 +189,7 @@
             return;
 
         cobros.CobroId = this.CobroId;
+        cobros.cobrosDetalles.RemoveAll(d => d.Cobrado == 0);
         if (await cobrosBLL.Guardar(cobros))
         {
             toast.ShowSuccess("Guardado.");
@@ -246,7 +250,6 @@
         }
     }
 
-
     private void SourceDTO(CobrosDetalles detalle, Ventas venta)
     {
         var dto = new
@@ -266,19 +269,38 @@
         listVenta = await ventasBLL.GetList(c => c.ClienteId == cobros.ClienteId && c.CobroNoPerdiente == true);
     }
 
-    private void CotejoCobrar(Ventas venta)
+    private void CotejoCobrar(CobrosDetalles cobrodetalles)
     {
-        if (venta.CobroNoPerdiente == false)
+        if (cobrodetalles.Cobrado == 0)
         {
-            cobros.TotalesCobro += venta.Balance;
-            venta.Cobrado = venta.Balance;
+            cobrodetalles.Cobrado = cobrodetalles.Venta.Balance;
+            cobros.TotalesCobro += cobrodetalles.Cobrado;
             cobros.ConteoCobro++;
         }
         else
         {
-            cobros.TotalesCobro += venta.Balance;
-            venta.Cobrado += venta.Balance;
-            cobros.ConteoCobro++;
+            cobrodetalles.Cobrado = 0;
+            cobros.TotalesCobro -= cobrodetalles.Venta.Balance;
+            cobros.ConteoCobro--;
+        }
+    }
+
+    private async Task BuscarVentasCobradas()
+    {
+        if (CobroId > 0)
+        {
+            var cobrado = await cobrosBLL.Buscar(CobroId);
+
+            if (cobrado != null)
+            {
+                cobrado.cobrosDetalles = await ventasBLL.GetVentasPagada(cobrado.ClienteId);
+                this.cobros = cobrado;
+
+            }
+            else
+            {
+                toast.ShowError("El cobro no existe");
+            }
         }
     }
 

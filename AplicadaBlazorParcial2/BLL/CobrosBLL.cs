@@ -19,53 +19,29 @@ namespace AplicadaBlazorParcial2.BLL
 
         public async Task<bool> Guardar(Cobros cobros)
         {
-            bool paso = false;
-
-            try
-            {
-                if (!await contexto.Cobros.AnyAsync(c => c.CobroId == cobros.CobroId))
-                {
-                    contexto.Cobros.Add(cobros);
-                    paso = await contexto.SaveChangesAsync() > 0;
-                }
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-
-            return paso;
+            return await Insertar(cobros);
         }
 
         private async Task<bool> Insertar(Cobros cobros)
         {
-            bool Insertado = false;
-            //Contexto contexto = new Contexto();
+            bool paso = false;
 
             try
             {
-                await contexto.Cobros.AddAsync(cobros);
-                Insertado = await contexto.SaveChangesAsync() > 0;
                 foreach (var item in cobros.cobrosDetalles)
                 {
-
-                    item.Venta = contexto.Ventas.Find(item.VentaId);
+                    item.Venta = await contexto.Ventas.FindAsync(item.VentaId);
                     item.Venta.Balance -= item.Cobrado;
                     contexto.Entry(item.Venta).State = EntityState.Modified;
                 }
-                contexto.Cobros.Add(cobros);
-                Insertado = (contexto.SaveChanges() > 0);
+                await contexto.Cobros.AddAsync(cobros);
+                paso = (contexto.SaveChanges() > 0);
             }
             catch (Exception)
             {
                 throw;
             }
-            finally
-            {
-                contexto.Dispose();
-            }
-            return Insertado;
+            return paso;
         }
 
         public async Task<Cobros> Buscar(int id)
@@ -74,19 +50,10 @@ namespace AplicadaBlazorParcial2.BLL
 
             try
             {
-                cobros = await contexto.Cobros.Where(c => c.CobroId == id)
+                cobros = await contexto.Cobros.
+                    Where(c => c.CobroId == id)
                     .Include(c => c.cobrosDetalles)
-                    .AsNoTracking()
-                    .SingleOrDefaultAsync();
-
-                var entidad = contexto
-                .Set<Cobros>()
-                .Local.SingleOrDefault(c => c.CobroId == id);
-
-                if (entidad != null)
-                {
-                    contexto.Entry(entidad).State = EntityState.Detached;
-                }
+                    .FirstOrDefaultAsync();
             }
             catch (Exception)
             {

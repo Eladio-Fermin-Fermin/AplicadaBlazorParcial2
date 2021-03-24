@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AplicadaBlazorParcial2.Migrations
 {
     [DbContext(typeof(Contexto))]
-    [Migration("20210320141243_Migracion_Inicial")]
-    partial class Migracion_Inicial
+    [Migration("20210324155852_Migration_Inicial")]
+    partial class Migration_Inicial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

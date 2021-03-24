@@ -24,9 +24,10 @@ namespace AplicadaBlazorParcial2.BLL
             try
             {
                 ventas = await contexto.Ventas
-                   .Where(p => p.VentaId == id)
-                   .AsNoTracking()
-                   .FirstOrDefaultAsync();
+                  .Where(b => b.VentaId == id)
+                    .Include(c => c.cobrosDetalles)
+                    .AsNoTracking()
+                    .SingleOrDefaultAsync();
             }
             catch (Exception)
             {
@@ -94,7 +95,7 @@ namespace AplicadaBlazorParcial2.BLL
         {
             var porPagar = new List<CobrosDetalles>();
             var ventas = await contexto.Ventas
-                .Where(v => v.ClienteId == clienteId && v.Balance == 0)
+                .Where(v => v.ClienteId == clienteId && v.Balance > 0)
                 .AsNoTracking()
                 .ToListAsync();
 

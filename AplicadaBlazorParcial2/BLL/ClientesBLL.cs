@@ -61,7 +61,7 @@ namespace AplicadaBlazorParcial2.BLL
 
             try
             {
-                lista = await contexto.Clientes.Where(criterio).ToListAsync();
+                lista = await contexto.Clientes.Where(criterio).Include(v => v.Ventas).ToListAsync();
             }
             catch (Exception)
             {

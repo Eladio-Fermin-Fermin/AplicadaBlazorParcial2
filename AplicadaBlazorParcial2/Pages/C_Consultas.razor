@@ -33,6 +33,7 @@
                         <select class="form-control" @bind="Filtro">
                             <option value="0">Todo</option>
                             <option value="1">Cobro ID</option>
+                            @*<option value="2">Observacion</option>*@
                         </select>
                     </div>
                     &nbsp;
@@ -55,7 +56,7 @@
                                 <th>Fecha</th>
                                 <th>Cliente Id</th>
                                 <th>Total cobrado</th>
-                                <th></th>
+                                <th>Observacion</th>
 
                             </tr>
                         </thead>
@@ -67,6 +68,7 @@
                                 <td>@item.Fecha.ToString("dd/MM/yyyy")</td>
                                 <td>@item.ClienteId</td>
                                 <td>@item.TotalesCobro</td>
+                                <td>@item.Observacion</td>
                             </tr>
                             }
                         </tbody>
@@ -118,7 +120,9 @@
     public async void Consultar()
     {
         int id;
+        string observacion;
         int.TryParse(Criterio, out id);
+        //string.TryParse(Criterio, out observacion);
         switch (Filtro)
         {
             case "0": //Todo
@@ -137,27 +141,13 @@
                     }
                 }
                 break;
-        }
-
-        /*switch (Filtro)
-        {
-            case "0": //Todo
-                CobroList = await cobrosBLL.GetList(c => true);
-                break;
-            case "1":
+            case "2":
                 if (Criterio.Trim().Length > 0)
                 {
-                    try
-                    {
-                        CobroList = await cobrosBLL.GetList(c => c.CobroId == id);
-                    }
-                    catch (FormatException)
-                    {
-                        toast.ShowWarning("Digite un Id");
-                    }
+                    // CobroList = await cobrosBLL.GetList(c => c.Observacion == observacion);
                 }
                 break;
-        }*/
+        }
 
 
         switch (FiltroFecha)
